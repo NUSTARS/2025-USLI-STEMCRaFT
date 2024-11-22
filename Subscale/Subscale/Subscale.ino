@@ -7,14 +7,17 @@
   - Time of landing 
     - Will use on board clock on MCU to keep track of time 
   - Will need to log data
+    - Log data in CSV format 
 */
 
-void setup() {
-  // put your setup code here, to run once:
+// ---------- Include ---------- //
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include "Adafruit_BMP3XX.h"
+#include <Adafruit_ADXL375.h>
+#include <Adafruit_BNO085.h>
 
-}
+const int chipSelect = BUILTIN_SDCARD; // The teensy has a pre-named chip number that is classified under "BUILTIN_SDCARD"
+Adafruit_BMP3XX altimeter; // default adress set to 0x77 (I2C address)
 
-void loop()  {
-  // put your main code here, to run repeatedly:
 
-}
