@@ -8,16 +8,27 @@
     - Will use on board clock on MCU to keep track of time 
   - Will need to log data
     - Log data in CSV format 
+
+  Notes
+    - https://www.pjrc.com/teensy/tutorial.html
+    - https://learn.adafruit.com/adafruit-9-dof-orientation-imu-fusion-breakout-bno085/uart-rvc-for-arduino
+
+
+  if weird error, denied ability to access key strokes 
 */
 
 // ---------- Include ---------- //
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include "Adafruit_BMP3XX.h"
-#include <Adafruit_ADXL375.h>
-#include <Adafruit_BNO085.h>
+#include <Adafruit_BNO08x.h>
+//#include <SD.h> 
 
-const int chipSelect = BUILTIN_SDCARD; // The teensy has a pre-named chip number that is classified under "BUILTIN_SDCARD"
-Adafruit_BMP3XX altimeter; // default adress set to 0x77 (I2C address)
+// Initialize the barometer
+#define SEALEVELPRESSURE_HPA (1013.25)
+Adafruit_BMP3XX bmp; // default adress set to 0x77 (I2C address)
+
+const int interruptPin = 7; // Select any digial pin (they all have interrupt capabilities)
+volatile bool dataReady = false;
 
 
