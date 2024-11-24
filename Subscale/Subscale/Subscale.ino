@@ -22,13 +22,51 @@
 #include <Adafruit_Sensor.h>
 #include "Adafruit_BMP3XX.h"
 #include <Adafruit_BNO08x.h>
-//#include <SD.h> 
+#include <SD.h> 
 
 // Initialize the barometer
 #define SEALEVELPRESSURE_HPA (1013.25)
 Adafruit_BMP3XX bmp; // default adress set to 0x77 (I2C address)
+void barometerSetup();
+void barometerLoop();
+void barometerPrint();
 
-const int interruptPin = 7; // Select any digial pin (they all have interrupt capabilities)
-volatile bool dataReady = false;
+// Initalize SD card
+const int chipSelect = BUILTIN_SDCARD;
+unsigned long lastLogTime = 0; // Stores the last log time
+const unsigned long logInterval = 1000; // Log every 1000 ms (1 second)
+
+// Initialize IMU
+#define BNO08X_RESET -1
+
+struct euler_t {
+  float yaw;
+  float pitch;
+  float roll;
+} ypr;
+
+Adafruit_BNO08x bno08x(BNO08X_RESET);
+sh2_SensorValue_t sensorValue;
+sh2_SensorId_t reportType = SH2_ARVR_STABILIZED_RV;
+long reportIntervalUs = 5000;
+void setupIMU();
+void setReports(sh2_SensorId_t reportType, long report_interval);
+void quaternionToEuler(float qr, float qi, float qj, float qk, euler_t* ypr, bool degrees = false);
+void quaternionToEulerRV(sh2_RotationVectorWAcc_t* rotational_vector, euler_t* ypr, bool degrees = false);
+void IMULoop();
+void IMUPrint();
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
