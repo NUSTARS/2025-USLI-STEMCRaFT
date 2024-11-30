@@ -1,8 +1,7 @@
 void loop()  {
+  IMULoop();
   barometerLoop();
-  //IMULoop();
-
-
+  logData();
 }
 
 

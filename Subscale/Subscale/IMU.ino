@@ -14,50 +14,46 @@ void setReports(sh2_SensorId_t reportType, long report_interval) {
   }
 }
 
-
- void quaternionToEuler(float qr, float qi, float qj, float qk, euler_t* ypr, bool degrees = false) {
+ void quaternionToEuler(float qr, float qi, float qj, float qk, euler_t* yprxyz, bool degrees = false) {
 
     float sqr = sq(qr);
     float sqi = sq(qi);
     float sqj = sq(qj);
     float sqk = sq(qk);
 
-    ypr->yaw = atan2(2.0 * (qi * qj + qk * qr), (sqi - sqj - sqk + sqr));
-    ypr->pitch = asin(-2.0 * (qi * qk - qj * qr) / (sqi + sqj + sqk + sqr));
-    ypr->roll = atan2(2.0 * (qj * qk + qi * qr), (-sqi - sqj + sqk + sqr));
+    yprxyz->yaw = atan2(2.0 * (qi * qj + qk * qr), (sqi - sqj - sqk + sqr));
+    yprxyz->pitch = asin(-2.0 * (qi * qk - qj * qr) / (sqi + sqj + sqk + sqr));
+    yprxyz->roll = atan2(2.0 * (qj * qk + qi * qr), (-sqi - sqj + sqk + sqr));
 
     if (degrees) {
-      ypr->yaw *= RAD_TO_DEG;
-      ypr->pitch *= RAD_TO_DEG;
-      ypr->roll *= RAD_TO_DEG;
+      yprxyz->yaw *= RAD_TO_DEG;
+      yprxyz->pitch *= RAD_TO_DEG;
+      yprxyz->roll *= RAD_TO_DEG;
     }
 }
 
-void quaternionToEulerGI(sh2_GyroIntegratedRV_t* rotational_vector, euler_t* ypr, bool degrees = false) {
-    quaternionToEuler(rotational_vector->real, rotational_vector->i, rotational_vector->j, rotational_vector->k, ypr, degrees);
+void quaternionToEulerGI(sh2_GyroIntegratedRV_t* rotational_vector, euler_t* yprxyz, bool degrees = false) {
+    quaternionToEuler(rotational_vector->real, rotational_vector->i, rotational_vector->j, rotational_vector->k, yprxyz, degrees);
 }
 
 void IMULoop() {
     if (bno08x.getSensorEvent(&sensorValue)) {
-      quaternionToEulerGI(&sensorValue.un.gyroIntegratedRV, &ypr, true);
+      quaternionToEulerGI(&sensorValue.un.gyroIntegratedRV, &yprxyz, true);
     }
     setReports(reportType, reportIntervalUs);
 
-    double yaw = ypr.yaw;
-    double roll = ypr.roll;
-    double pitch = ypr.pitch;
-    IMUPrint();
+  sensors_event_t event;
+  yprxyz.xAccel = event.acceleration.x;
+  yprxyz.yAccel = event.acceleration.y;
+  yprxyz.zAccel = event.acceleration.z;
+
+
 }
 
 void IMUPrint() {
-    static long last = 0;
-    long now = micros();
-    Serial.print(now - last);             Serial.print("\t");
-    last = now;
-    Serial.print(sensorValue.status);     Serial.print("\t");  // This is accuracy in the range of 0 to 3
-    Serial.print(ypr.yaw);                Serial.print("\t");
-    Serial.print(ypr.pitch);              Serial.print("\t");
-    Serial.println(ypr.roll);
+    Serial.print(yprxyz.yaw);
+    Serial.print(yprxyz.pitch);
+    Serial.print(yprxyz.roll);
 }
 
 

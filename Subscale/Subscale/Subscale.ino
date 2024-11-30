@@ -9,12 +9,19 @@
   - Will need to log data
     - Log data in CSV format 
 
+
   Notes
-    - https://www.pjrc.com/teensy/tutorial.html
+    - Download the Teensyduino library 
+      - https://www.pjrc.com/teensy/tutorial.html
     - https://learn.adafruit.com/adafruit-9-dof-orientation-imu-fusion-breakout-bno085/uart-rvc-for-arduino
+    - How to store data the fastest
 
+  Things to do
+    - Reset alt when on the pad (pin is removed)
+    - Add time to log
+    - Fix the x, y, z accel 
 
-  if weird error, denied ability to access key strokes 
+  if weird error, denied ability to access key strokes (this is for my mac specifically don't worry abt it)
 */
 
 // ---------- Include ---------- //
@@ -22,7 +29,8 @@
 #include <Adafruit_Sensor.h>
 #include "Adafruit_BMP3XX.h"
 #include <Adafruit_BNO08x.h>
-#include <SD.h> 
+#include <SdFat.h> 
+#include <SPI.h>
 
 // Initialize the barometer
 #define SEALEVELPRESSURE_HPA (1013.25)
@@ -31,10 +39,22 @@ void barometerSetup();
 void barometerLoop();
 void barometerPrint();
 
+struct BarometerData {
+  double temp;
+  double press;
+  double alt;
+} tap;
+
 // Initalize SD card
-const int chipSelect = BUILTIN_SDCARD;
-unsigned long lastLogTime = 0; // Stores the last log time
-const unsigned long logInterval = 1000; // Log every 1000 ms (1 second)
+SdFat SD;
+FsFile dataFile;
+
+unsigned long previousMillis = 0; // Stores the last log time
+const unsigned long dataLogInterval = 50; 
+
+// Initialize Pull Pin
+const int pullPin = 5;
+bool firstTime = true;
 
 // Initialize IMU
 #define BNO08X_RESET -1
@@ -43,18 +63,29 @@ struct euler_t {
   float yaw;
   float pitch;
   float roll;
-} ypr;
+  float xAccel;
+  float yAccel;
+  float zAccel;
+} yprxyz;
 
 Adafruit_BNO08x bno08x(BNO08X_RESET);
 sh2_SensorValue_t sensorValue;
 sh2_SensorId_t reportType = SH2_ARVR_STABILIZED_RV;
 long reportIntervalUs = 5000;
+
+// Declaring functions
 void setupIMU();
 void setReports(sh2_SensorId_t reportType, long report_interval);
 void quaternionToEuler(float qr, float qi, float qj, float qk, euler_t* ypr, bool degrees = false);
 void quaternionToEulerRV(sh2_RotationVectorWAcc_t* rotational_vector, euler_t* ypr, bool degrees = false);
 void IMULoop();
 void IMUPrint();
+
+void setupSD();
+void logData();
+
+void setupPullPin();
+bool checkPullPin();
 
 
 

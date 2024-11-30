@@ -22,21 +22,19 @@ void barometerLoop() {
     return;
   }
 
-  double temp = bmp.temperature * 9/5 + 32; // Fahrenheit
-  double press = bmp.pressure / 100;        // Mbar
-  double alt = bmp.readAltitude(1013.25) * 3.28084;   // Should be in feet
-
-  barometerPrint(temp, press, alt);
+  tap.temp = bmp.temperature * 9/5 + 32; // Fahrenheit
+  tap.press = bmp.pressure / 100;        // Mbar
+  tap.alt = bmp.readAltitude(1013.25) * 3.28084;   // Should be in feet
 }
 
-void barometerPrint(double temp, double press, double alt) {
+void barometerPrint() {
   // Print data
   Serial.print("Temperature = ");
-  Serial.print(temp);
+  Serial.print(tap.temp);
 
   Serial.print(" Pressure = ");
-  Serial.print(press); 
+  Serial.print(tap.press); 
 
   Serial.print(" Altitude = ");
-  Serial.println(alt); 
+  Serial.println(tap.alt); 
 }
