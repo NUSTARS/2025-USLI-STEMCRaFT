@@ -9,6 +9,8 @@ void setupSD() {
 void logData() {
   bool pullState = checkPullPin();
 
+ 
+
   if (pullState && firstTime) {
     Serial.println("FIRST TIME SD, CLEARING FILE");
     dataFile = SD.open("data.txt", O_WRITE | O_CREAT | O_TRUNC);
@@ -18,20 +20,28 @@ void logData() {
     firstTime = false;
   }
 
-  // Open or create a file in write mode
   dataFile = SD.open("data.txt", O_RDWR | O_CREAT | O_AT_END);
 
   if (dataFile && !firstTime && pullState) {
-    // Write a line of data
-    dataFile.printf("Temp = %.3f, Press = %.3f, Alt = %.3f, X-Accel: %.3f, Y-Accel: %.3f, Z-Accel: %.3f, Pitch = %.3f, Yaw = %.3f, Roll = %.3f \n", 
-                      tap.temp, tap.press, tap.alt, yprxyz.xAccel, yprxyz.yAccel, yprxyz.zAccel, yprxyz.pitch, yprxyz.yaw, yprxyz.roll); // NEED TO ADD TIME
-    dataFile.close();  // Always close the file after writing
-    Serial.println("Data written to data.txt");
-  } else {
-    Serial.println("Failed to open file for writing.");
-  }
+    if (currentDataLine < storeLines) {
+      data += String(currentTime) + ", " + String(tap.temp) + ", " + String(tap.press) + ", " + String(tap.alt) + ", " + String(yprxyz.xAccel)
+                               + ", " + String(yprxyz.yAccel) + ", " + String(yprxyz.zAccel) + ", " + String(yprxyz.pitch) + ", " + String(yprxyz.yaw) + ", " + String(yprxyz.roll) + "\n";
+      currentDataLine++;
+    }
+    else {
+      // Open or create a file in write mode
+      //Serial.println(data.c_str());
 
-  delay(100);  // Write data every second
+      dataFile.write(data.c_str());
+      dataFile.close();
+
+      currentDataLine = 0;
+      //Serial.println("Data written to data.txt");
+    }
+  } 
+  else {
+    //Serial.print(dataFile); Serial.print(firstTime); Serial.println(pullState); 
+  }
 }
 
 

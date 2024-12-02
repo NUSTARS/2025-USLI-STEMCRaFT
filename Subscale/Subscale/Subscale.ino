@@ -46,11 +46,16 @@ struct BarometerData {
 } tap;
 
 // Initalize SD card
+int storeLines = 10;
+int currentDataLine = 0;
+String data;
+
 SdFat SD;
 FsFile dataFile;
 
 unsigned long previousMillis = 0; // Stores the last log time
 const unsigned long dataLogInterval = 50; 
+unsigned long currentTime = 0;
 
 // Initialize Pull Pin
 const int pullPin = 5;
@@ -76,8 +81,8 @@ long reportIntervalUs = 5000;
 // Declaring functions
 void setupIMU();
 void setReports(sh2_SensorId_t reportType, long report_interval);
-void quaternionToEuler(float qr, float qi, float qj, float qk, euler_t* ypr, bool degrees = false);
-void quaternionToEulerRV(sh2_RotationVectorWAcc_t* rotational_vector, euler_t* ypr, bool degrees = false);
+void quaternionToEuler();
+void quaternionToEulerRV();
 void IMULoop();
 void IMUPrint();
 

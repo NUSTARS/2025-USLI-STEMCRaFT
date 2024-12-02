@@ -5,4 +5,5 @@ void setup() {
   setupIMU();
   setupSD();
   setupPullPin();
+  
 }

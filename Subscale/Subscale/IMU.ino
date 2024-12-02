@@ -12,6 +12,9 @@ void setReports(sh2_SensorId_t reportType, long report_interval) {
   if (! bno08x.enableReport(reportType, report_interval)) {
     Serial.println("Could not enable stabilized remote vector");
   }
+  if (!bno08x.enableReport(SH2_ACCELEROMETER)) {
+    Serial.println("Could not enable accelerometer");
+  }
 }
 
  void quaternionToEuler(float qr, float qi, float qj, float qk, euler_t* yprxyz, bool degrees = false) {
@@ -37,23 +40,55 @@ void quaternionToEulerGI(sh2_GyroIntegratedRV_t* rotational_vector, euler_t* ypr
 }
 
 void IMULoop() {
+
+  if (!bno08x.getSensorEvent(&sensorValue)) {
+    return;
+  }
+  switch (sensorValue.sensorId) {
+    case SH2_ACCELEROMETER:
+    yprxyz.xAccel = sensorValue.un.accelerometer.x * 3.28084;
+    yprxyz.yAccel = sensorValue.un.accelerometer.y * 3.28084;
+    yprxyz.zAccel = sensorValue.un.accelerometer.z * 3.28084;
+
+    case SH2_GYRO_INTEGRATED_RV:
     if (bno08x.getSensorEvent(&sensorValue)) {
       quaternionToEulerGI(&sensorValue.un.gyroIntegratedRV, &yprxyz, true);
     }
-    setReports(reportType, reportIntervalUs);
-
-  sensors_event_t event;
-  yprxyz.xAccel = event.acceleration.x;
-  yprxyz.yAccel = event.acceleration.y;
-  yprxyz.zAccel = event.acceleration.z;
-
+  }
+  //IMUPrint();
 
 }
 
 void IMUPrint() {
-    Serial.print(yprxyz.yaw);
-    Serial.print(yprxyz.pitch);
-    Serial.print(yprxyz.roll);
+  
+  Serial.print("Yaw = ");
+  Serial.print(yprxyz.yaw);
+  Serial.print(" Pitch = ");
+  Serial.print(yprxyz.pitch);
+  Serial.print(" Roll = ");
+  Serial.print(yprxyz.roll);
+  
+
+  Serial.print(" X-Accel = ");
+  Serial.print(yprxyz.xAccel);
+  Serial.print(" Y-Accel = ");
+  Serial.print(yprxyz.yAccel);
+  Serial.print(" Z-Accel = ");
+  Serial.println(yprxyz.zAccel);
+
+  /* Quaternion Vec
+  
+  Serial.print(" Real-Rotation = ");
+  Serial.print(sensorValue.un.geoMagRotationVector.real);
+  Serial.print(" i-Rotation = ");
+  Serial.print(sensorValue.un.geoMagRotationVector.i);
+  Serial.print(" j-Rotation = ");
+  Serial.print(sensorValue.un.geoMagRotationVector.j);
+  Serial.print(" k-Rotation = ");
+  Serial.println(sensorValue.un.geoMagRotationVector.k);
+  */
+
+
 }
 
 

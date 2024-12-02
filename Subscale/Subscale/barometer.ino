@@ -25,6 +25,8 @@ void barometerLoop() {
   tap.temp = bmp.temperature * 9/5 + 32; // Fahrenheit
   tap.press = bmp.pressure / 100;        // Mbar
   tap.alt = bmp.readAltitude(1013.25) * 3.28084;   // Should be in feet
+
+  //barometerPrint();
 }
 
 void barometerPrint() {
