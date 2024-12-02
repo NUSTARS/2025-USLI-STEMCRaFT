@@ -45,6 +45,7 @@ void logData() {
 }
 
 
+// This isn't how the pull pin works. it is wired directly into the power cable so the MCU is off when its not connected
 void setupPullPin() {
   pinMode(pullPin, INPUT);
 }
