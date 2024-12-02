@@ -4,6 +4,4 @@ void setup() {
   //barometerSetup();
   setupIMU();
   //setupSD();
-  //setupPullPin();
-  
 }

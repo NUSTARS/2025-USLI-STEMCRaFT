@@ -7,11 +7,7 @@ void setupSD() {
 }
 
 void logData() {
-  bool pullState = checkPullPin();
-
- 
-
-  if (pullState && firstTime) {
+  if (firstTime) {
     Serial.println("FIRST TIME SD, CLEARING FILE");
     dataFile = SD.open("data.txt", O_WRITE | O_CREAT | O_TRUNC);
     Serial.println("SD CARD CLEARED");
@@ -22,7 +18,7 @@ void logData() {
 
   dataFile = SD.open("data.txt", O_RDWR | O_CREAT | O_AT_END);
 
-  if (dataFile && !firstTime && pullState) {
+  if (dataFile && !firstTime) {
     if (currentDataLine < storeLines) {
       data += String(currentTime) + ", " + String(tap.temp) + ", " + String(tap.press) + ", " + String(tap.alt) + ", " + String(yprxyz.xAccel)
                                + ", " + String(yprxyz.yAccel) + ", " + String(yprxyz.zAccel) + ", " + String(yprxyz.pitch) + ", " + String(yprxyz.yaw) + ", " + String(yprxyz.roll) + "\n";
@@ -40,16 +36,6 @@ void logData() {
     }
   } 
   else {
-    //Serial.print(dataFile); Serial.print(firstTime); Serial.println(pullState); 
+    //Serial.print(dataFile); Serial.print(firstTime);
   }
-}
-
-
-// This isn't how the pull pin works. it is wired directly into the power cable so the MCU is off when its not connected
-void setupPullPin() {
-  pinMode(pullPin, INPUT);
-}
-
-bool checkPullPin() {
-  return digitalRead(pullPin);
 }
