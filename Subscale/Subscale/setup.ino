@@ -1,9 +1,9 @@
 void setup() {
   Serial.begin(115200);
 
-  barometerSetup();
+  //barometerSetup();
   setupIMU();
-  setupSD();
-  setupPullPin();
+  //setupSD();
+  //setupPullPin();
   
 }

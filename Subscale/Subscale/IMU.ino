@@ -49,11 +49,13 @@ void IMULoop() {
     yprxyz.xAccel = sensorValue.un.accelerometer.x * 3.28084;
     yprxyz.yAccel = sensorValue.un.accelerometer.y * 3.28084;
     yprxyz.zAccel = sensorValue.un.accelerometer.z * 3.28084;
+    break;
 
     case SH2_GYRO_INTEGRATED_RV:
     if (bno08x.getSensorEvent(&sensorValue)) {
       quaternionToEulerGI(&sensorValue.un.gyroIntegratedRV, &yprxyz, true);
     }
+    break;
   }
   //IMUPrint();
 

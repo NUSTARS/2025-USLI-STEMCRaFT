@@ -19,7 +19,7 @@
   Things to do
     - Reset alt when on the pad (pin is removed)
     - Add time to log
-    - Fix the x, y, z accel 
+    - 
 
   if weird error, denied ability to access key strokes (this is for my mac specifically don't worry abt it)
 */

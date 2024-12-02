@@ -1,11 +1,16 @@
 void loop()  {
   currentTime = millis();
-  IMULoop();
-  barometerLoop();
-  double timeToLog = (millis()-currentTime)/1000.0;
-  System.out.print("Time to Log: ")
-  System.out.println(timeToLog);
+
+  for (int i = 0; i < 10; i++) {
+    IMULoop();
+  }
+  //barometerLoop();
+  //delay(10);
+
+  long timeToLog = (millis()-currentTime);
+  Serial.println(timeToLog);
   //logData();
+  
 }
 
 
