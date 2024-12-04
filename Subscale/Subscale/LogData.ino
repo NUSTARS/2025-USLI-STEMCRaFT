@@ -1,12 +1,12 @@
-void setupSD() {
+int setupSD() {
   if (!SD.begin(SdioConfig(FIFO_SDIO))) { // Test to see if the SD card is there
-    Serial.println("Card failed, or not present");
-    while (1) {}
+    return -1;
   }
-  Serial.println("card initialized.");
+  return 0;
 }
 
 void logData() {
+  /*
   if (firstTime) {
     Serial.println("FIRST TIME SD, CLEARING FILE");
     dataFile = SD.open("data.txt", O_WRITE | O_CREAT | O_TRUNC);
@@ -38,4 +38,5 @@ void logData() {
   else {
     //Serial.print(dataFile); Serial.print(firstTime);
   }
+  */
 }

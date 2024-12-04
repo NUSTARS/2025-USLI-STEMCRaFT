@@ -1,99 +1,93 @@
- void setupIMU() {
+ // report interval is in Hz
+ // returns -1 if setup fail, -2 if remote vector fail, -3 if accel fail, 0 if success
+int setupIMU(long reportIntervalUs) {
   if (!bno08x.begin_I2C()) {
-    Serial.println("Failed to find BNO08x chip");
-    while (1) { delay(10); }
+    return -1; 
   }
-  Serial.println("BNO08x Found!");
 
-  setReports(reportType, reportIntervalUs);
- }
-
-void setReports(sh2_SensorId_t reportType, long report_interval) {
-  if (! bno08x.enableReport(reportType, report_interval)) {
-    Serial.println("Could not enable stabilized remote vector");
-  }
-  if (!bno08x.enableReport(SH2_ACCELEROMETER)) {
-    Serial.println("Could not enable accelerometer");
-  }
+  return setReports(SH2_ARVR_STABILIZED_RV, reportIntervalUs);
 }
 
- void quaternionToEuler(float qr, float qi, float qj, float qk, euler_t* yprxyz, bool degrees = false) {
+// returns -2 if remote vector fail, -3 if accel fail
+int setReports(sh2_SensorId_t reportType, long report_interval) {
+  if (! bno08x.enableReport(reportType, report_interval)) {
+    return -2;
+  }
+  if (!bno08x.enableReport(SH2_ACCELEROMETER)) {
+    return -3;
+  }
+  return 0;
+}
+
+ // returns through orientation pointer
+ // In radians by default 
+ void quaternionToEuler(float qr, float qi, float qj, float qk, orientation* orient, bool degrees = false) {
 
     float sqr = sq(qr);
     float sqi = sq(qi);
     float sqj = sq(qj);
     float sqk = sq(qk);
 
-    yprxyz->yaw = atan2(2.0 * (qi * qj + qk * qr), (sqi - sqj - sqk + sqr));
-    yprxyz->pitch = asin(-2.0 * (qi * qk - qj * qr) / (sqi + sqj + sqk + sqr));
-    yprxyz->roll = atan2(2.0 * (qj * qk + qi * qr), (-sqi - sqj + sqk + sqr));
+    orient->yaw = atan2(2.0 * (qi * qj + qk * qr), (sqi - sqj - sqk + sqr));
+    orient->pitch = asin(-2.0 * (qi * qk - qj * qr) / (sqi + sqj + sqk + sqr));
+    orient->roll = atan2(2.0 * (qj * qk + qi * qr), (-sqi - sqj + sqk + sqr));
 
     if (degrees) {
-      yprxyz->yaw *= RAD_TO_DEG;
-      yprxyz->pitch *= RAD_TO_DEG;
-      yprxyz->roll *= RAD_TO_DEG;
+      orient->yaw *= RAD_TO_DEG;
+      orient->pitch *= RAD_TO_DEG;
+      orient->roll *= RAD_TO_DEG;
     }
 }
 
-void quaternionToEulerGI(sh2_GyroIntegratedRV_t* rotational_vector, euler_t* yprxyz, bool degrees = false) {
-    quaternionToEuler(rotational_vector->real, rotational_vector->i, rotational_vector->j, rotational_vector->k, yprxyz, degrees);
+// returns through orientation 
+// for gyroscope integrated orientation 
+void quaternionToEulerGI(sh2_RotationVectorWAcc_t* rotational_vector, orientation* orient, bool degrees = false) {
+    quaternionToEuler(rotational_vector->real, rotational_vector->i, rotational_vector->j, rotational_vector->k, orient, degrees);
 }
 
-void IMULoop() {
+
+// return -1 if failed, 0 if success
+int getIMUData(orientation* orient, acceleration* accel) {
+
+  sh2_SensorValue_t sensorValue;
 
   if (!bno08x.getSensorEvent(&sensorValue)) {
-    return;
+    return -1;
   }
+
   switch (sensorValue.sensorId) {
     case SH2_ACCELEROMETER:
-    yprxyz.xAccel = sensorValue.un.accelerometer.x * 3.28084;
-    yprxyz.yAccel = sensorValue.un.accelerometer.y * 3.28084;
-    yprxyz.zAccel = sensorValue.un.accelerometer.z * 3.28084;
+      accel->xAccel = sensorValue.un.accelerometer.x * 3.28084; // convert to ft/s^2
+      accel->yAccel = sensorValue.un.accelerometer.y * 3.28084;
+      accel->zAccel = sensorValue.un.accelerometer.z * 3.28084;
     break;
 
-    case SH2_GYRO_INTEGRATED_RV:
-    if (bno08x.getSensorEvent(&sensorValue)) {
-      quaternionToEulerGI(&sensorValue.un.gyroIntegratedRV, &yprxyz, true);
-    }
+    case SH2_ARVR_STABILIZED_RV:
+      quaternionToEulerGI(&sensorValue.un.arvrStabilizedRV, orient, true);
     break;
   }
-  //IMUPrint();
+
+  return 0;
 
 }
 
-void IMUPrint() {
-  
+void printOrientation(orientation* orient) {
   Serial.print("Yaw = ");
-  Serial.print(yprxyz.yaw);
+  Serial.print(orient->yaw);
   Serial.print(" Pitch = ");
-  Serial.print(yprxyz.pitch);
+  Serial.print(orient->pitch);
   Serial.print(" Roll = ");
-  Serial.print(yprxyz.roll);
-  
-
-  Serial.print(" X-Accel = ");
-  Serial.print(yprxyz.xAccel);
-  Serial.print(" Y-Accel = ");
-  Serial.print(yprxyz.yAccel);
-  Serial.print(" Z-Accel = ");
-  Serial.println(yprxyz.zAccel);
-
-  /* Quaternion Vec
-  
-  Serial.print(" Real-Rotation = ");
-  Serial.print(sensorValue.un.geoMagRotationVector.real);
-  Serial.print(" i-Rotation = ");
-  Serial.print(sensorValue.un.geoMagRotationVector.i);
-  Serial.print(" j-Rotation = ");
-  Serial.print(sensorValue.un.geoMagRotationVector.j);
-  Serial.print(" k-Rotation = ");
-  Serial.println(sensorValue.un.geoMagRotationVector.k);
-  */
-
-
+  Serial.print(orient->roll);
 }
 
-
+void printAccel(acceleration* accel) {
+  Serial.print(" X-Accel = ");
+  Serial.print(accel->xAccel);
+  Serial.print(" Y-Accel = ");
+  Serial.print(accel->yAccel);
+  Serial.print(" Z-Accel = ");
+  Serial.println(accel->zAccel);
+}
 
 
 

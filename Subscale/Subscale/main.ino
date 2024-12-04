@@ -1,11 +1,16 @@
 void loop()  {
-  currentTime = millis();
+  long currentTime = millis();
 
-  for (int i = 0; i < 10; i++) {
-    IMULoop();
-  }
-  //barometerLoop();
-  //delay(10);
+  orientation currentOrient;
+  acceleration currentAccel;
+  barometerData baro;
+  
+  //getIMUData(&currentOrient, &currentAccel);
+  //printOrientation(&currentOrient);
+  //printAccel(&currentAccel);
+
+  getBarometerData(&baro);
+  //printBarometerData(&baro);
 
   long timeToLog = (millis()-currentTime);
   Serial.println(timeToLog);

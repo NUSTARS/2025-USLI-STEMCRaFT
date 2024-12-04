@@ -17,9 +17,10 @@
     - How to store data the fastest
 
   Things to do
-    - Reset alt when on the pad (pin is removed)
     - Add time to log
-    - 
+    - Look into kalman filter
+    - Look into calibration
+    - Add roll pitch yaw RATE
 
   if weird error, denied ability to access key strokes (this is for my mac specifically don't worry abt it)
 */
@@ -32,65 +33,62 @@
 #include <SdFat.h> 
 #include <SPI.h>
 
-// Initialize the barometer
-#define SEALEVELPRESSURE_HPA (1013.25)
-Adafruit_BMP3XX bmp; // default adress set to 0x77 (I2C address)
-void barometerSetup();
-void barometerLoop();
-void barometerPrint();
-
-struct BarometerData {
-  double temp;
-  double press;
-  double alt;
-} tap;
-
-// Initalize SD card
-int storeLines = 10;
-int currentDataLine = 0;
-String data;
-
-SdFat SD;
-FsFile dataFile;
-
-unsigned long previousMillis = 0; // Stores the last log time
-const unsigned long dataLogInterval = 50; 
-unsigned long currentTime = 0;
-
-// Initialize Pull Pin
-const int pullPin = 5;
-bool firstTime = true;
-
-// Initialize IMU
+// IMU
 #define BNO08X_RESET -1
 
-struct euler_t {
+// Barometer
+#define SEALEVELPRESSURE_HPA (1013.25)
+
+
+// IMU vars  ---------------------------------
+Adafruit_BNO08x bno08x(BNO08X_RESET);
+long REPORT_FREQ_HZ = 5000;
+
+// Barometer vars ---------------------------------
+Adafruit_BMP3XX bmp; // default adress set to 0x77 (I2C address)
+
+// SD Stuff ---------------------------------------------------
+SdFat SD;
+FsFile dataFile;
+String FILE_NAME = "data.csv";
+
+
+
+// Structs -----------------------------------------------------
+struct orientation {
   float yaw;
   float pitch;
   float roll;
+};
+struct acceleration {
   float xAccel;
   float yAccel;
   float zAccel;
-} yprxyz;
+};
+struct barometerData {
+  double temp;
+  double press;
+  double alt;
+};
 
-Adafruit_BNO08x bno08x(BNO08X_RESET);
-sh2_SensorValue_t sensorValue;
-sh2_SensorId_t reportType = SH2_ARVR_STABILIZED_RV;
-long reportIntervalUs = 5000;
 
-// Declaring functions
-void setupIMU();
-void setReports(sh2_SensorId_t reportType, long report_interval);
-void quaternionToEuler();
-void quaternionToEulerRV();
-void IMULoop();
-void IMUPrint();
 
-void setupSD();
+// Functions -------------------------------------------------------------------------
+// Declaring IMU functions
+int setupIMU(long reportIntervalUs);
+int getIMUData(orientation* orient, acceleration* accel);
+int setReports(sh2_SensorId_t reportType, long report_interval);
+void printOrientation(orientation* orient);
+void printAccel(acceleration* accel);
+
+// Barometer Functions
+int setupBarometer();
+int getBarometerData(barometerData* baro);
+void printBarometerData(barometerData* baro);
+
+// SD Functions
+int setupSD();
 void logData();
-
-void setupPullPin();
-bool checkPullPin();
 
 
 
