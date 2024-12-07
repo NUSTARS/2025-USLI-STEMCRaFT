@@ -18,9 +18,10 @@
 
   Things to do
     - Add time to log
-    - Look into kalman filter
+    - Power distribution board
+    - SD Card logging
+    - Timer for getting all data points at a constant rate
     - Look into calibration
-    - Add roll pitch yaw RATE
 
   if weird error, denied ability to access key strokes (this is for my mac specifically don't worry abt it)
 */
@@ -29,20 +30,23 @@
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include "Adafruit_BMP3XX.h"
-#include <Adafruit_BNO08x.h>
+#include <Adafruit_BNO055.h>
 #include <SdFat.h> 
 #include <SPI.h>
 
-// IMU
-#define BNO08X_RESET -1
+#define BUZZER 12
+
+#define LOG_FREQ 100 // in Hz
+#define LOG_TIME 60 // in s
+#define THRESH_ACCEL 10 // in ft/s^2
+#define FILE_NAME "data.csv"
 
 // Barometer
 #define SEALEVELPRESSURE_HPA (1013.25)
 
 
 // IMU vars  ---------------------------------
-Adafruit_BNO08x bno08x(BNO08X_RESET);
-long REPORT_FREQ_HZ = 5000;
+Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28, &Wire);
 
 // Barometer vars ---------------------------------
 Adafruit_BMP3XX bmp; // default adress set to 0x77 (I2C address)
@@ -50,36 +54,36 @@ Adafruit_BMP3XX bmp; // default adress set to 0x77 (I2C address)
 // SD Stuff ---------------------------------------------------
 SdFat SD;
 FsFile dataFile;
-String FILE_NAME = "data.csv";
 
 
 
 // Structs -----------------------------------------------------
-struct orientation {
-  float yaw;
-  float pitch;
-  float roll;
-};
-struct acceleration {
-  float xAccel;
-  float yAccel;
-  float zAccel;
-};
 struct barometerData {
-  double temp;
-  double press;
-  double alt;
+  float temp;
+  float press;
+  float alt;
 };
 
-
+struct data {
+  float time;
+  float temp;
+  float pressure;
+  float altitude;
+  float euler_x;
+  float euler_y;
+  float euler_z;
+  float ang_x;
+  float ang_y;
+  float ang_z;
+  float accel_x;
+  float accel_y;
+  float accel_z;
+};
 
 // Functions -------------------------------------------------------------------------
 // Declaring IMU functions
-int setupIMU(long reportIntervalUs);
-int getIMUData(orientation* orient, acceleration* accel);
-int setReports(sh2_SensorId_t reportType, long report_interval);
-void printOrientation(orientation* orient);
-void printAccel(acceleration* accel);
+int getIMUData(sensors_event_t* orientationData, sensors_event_t* angVelocityData, sensors_event_t* linearAccelData);
+void printEvent(sensors_event_t* event);
 
 // Barometer Functions
 int setupBarometer();
@@ -88,7 +92,7 @@ void printBarometerData(barometerData* baro);
 
 // SD Functions
 int setupSD();
-void logData();
+void logData(data* dataArr, int arrLen);
 
 
 

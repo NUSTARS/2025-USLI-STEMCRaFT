@@ -5,38 +5,29 @@ int setupSD() {
   return 0;
 }
 
-void logData() {
-  /*
-  if (firstTime) {
-    Serial.println("FIRST TIME SD, CLEARING FILE");
-    dataFile = SD.open("data.txt", O_WRITE | O_CREAT | O_TRUNC);
-    Serial.println("SD CARD CLEARED");
-    dataFile.close();
+void logData(data* dataArr, int arrLen){
+  dataFile = SD.open(FILE_NAME, O_RDWR | O_CREAT | O_AT_END);
+  dataFile.write("-----time-temp-pressure-altitude-euler_x-euler_y-euler_z-ang_x-ang_y-ang_z-accel_x-accel_y-accel_z-----");
 
-    firstTime = false;
+  for(int i = 0; i < arrLen; i++){
+    String line = "";
+
+    line += String(dataArr[i].time) + ",";
+    line += String(dataArr[i].temp) + ",";
+    line += String(dataArr[i].pressure) + ",";
+    line += String(dataArr[i].altitude) + ",";
+    line += String(dataArr[i].euler_x) + ",";
+    line += String(dataArr[i].euler_y) + ",";
+    line += String(dataArr[i].euler_z) + ",";
+    line += String(dataArr[i].ang_x) + ",";
+    line += String(dataArr[i].ang_y) + ",";
+    line += String(dataArr[i].ang_z) + ",";
+    line += String(dataArr[i].accel_x) + ",";
+    line += String(dataArr[i].accel_y) + ",";
+    line += String(dataArr[i].accel_z) + "\n";
+
+    dataFile.write(line.c_str());
   }
 
-  dataFile = SD.open("data.txt", O_RDWR | O_CREAT | O_AT_END);
-
-  if (dataFile && !firstTime) {
-    if (currentDataLine < storeLines) {
-      data += String(currentTime) + ", " + String(tap.temp) + ", " + String(tap.press) + ", " + String(tap.alt) + ", " + String(yprxyz.xAccel)
-                               + ", " + String(yprxyz.yAccel) + ", " + String(yprxyz.zAccel) + ", " + String(yprxyz.pitch) + ", " + String(yprxyz.yaw) + ", " + String(yprxyz.roll) + "\n";
-      currentDataLine++;
-    }
-    else {
-      // Open or create a file in write mode
-      //Serial.println(data.c_str());
-
-      dataFile.write(data.c_str());
-      dataFile.close();
-
-      currentDataLine = 0;
-      //Serial.println("Data written to data.txt");
-    }
-  } 
-  else {
-    //Serial.print(dataFile); Serial.print(firstTime);
-  }
-  */
+  dataFile.close();
 }
