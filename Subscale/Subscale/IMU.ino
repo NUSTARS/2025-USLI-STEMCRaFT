@@ -10,59 +10,69 @@ int getIMUData(sensors_event_t* orientationData, sensors_event_t* angVelocityDat
 }
 
 void printEvent(sensors_event_t* event) {
+
+  if (linspace > 2) {
+    Serial.println();
+    linspace = 0;
+  }
+
   double x = -1000000, y = -1000000 , z = -1000000; //dumb values, easy to spot problem
   if (event->type == SENSOR_TYPE_ACCELEROMETER) {
-    Serial.print("Accl:");
+    Serial.print(" Accl:");
     x = event->acceleration.x;
     y = event->acceleration.y;
     z = event->acceleration.z;
   }
   else if (event->type == SENSOR_TYPE_ORIENTATION) {
-    Serial.print("Orient:");
+    Serial.print(" Orient:");
     x = event->orientation.x;
     y = event->orientation.y;
     z = event->orientation.z;
   }
   else if (event->type == SENSOR_TYPE_MAGNETIC_FIELD) {
-    Serial.print("Mag:");
+    Serial.print(" Mag:");
     x = event->magnetic.x;
     y = event->magnetic.y;
     z = event->magnetic.z;
   }
   else if (event->type == SENSOR_TYPE_GYROSCOPE) {
-    Serial.print("Gyro:");
+    Serial.print(" Gyro:");
     x = event->gyro.x;
     y = event->gyro.y;
     z = event->gyro.z;
   }
   else if (event->type == SENSOR_TYPE_ROTATION_VECTOR) {
-    Serial.print("Rot:");
+    Serial.print(" Rot:");
     x = event->gyro.x;
     y = event->gyro.y;
     z = event->gyro.z;
   }
   else if (event->type == SENSOR_TYPE_LINEAR_ACCELERATION) {
-    Serial.print("Linear:");
+    Serial.print(" Linear:");
     x = event->acceleration.x;
     y = event->acceleration.y;
     z = event->acceleration.z;
   }
   else if (event->type == SENSOR_TYPE_GRAVITY) {
-    Serial.print("Gravity:");
+    Serial.print(" Gravity:");
     x = event->acceleration.x;
     y = event->acceleration.y;
     z = event->acceleration.z;
   }
   else {
-    Serial.print("Unk:");
+    Serial.print(" Unk:");
   }
 
-  Serial.print("\tx= ");
+  Serial.print("\tx = ");
   Serial.print(x);
-  Serial.print(" |\ty= ");
+  Serial.print(" \ty = ");
   Serial.print(y);
-  Serial.print(" |\tz= ");
-  Serial.println(z);
+  Serial.print(" \tz = ");
+  Serial.print(z);
+
+  linspace++;
+
+
 }
 
 

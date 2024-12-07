@@ -17,9 +17,8 @@
     - How to store data the fastest
 
   Things to do
-    - Add time to log
-    - Power distribution board
-    - SD Card logging
+    - Check why we are getting random data into SD card
+    - Make sure to validate which axis is up
     - Timer for getting all data points at a constant rate
     - Look into calibration
 
@@ -37,9 +36,9 @@
 #define BUZZER 12
 
 #define LOG_FREQ 100 // in Hz
-#define LOG_TIME 60 // in s
-#define THRESH_ACCEL 10 // in ft/s^2
-#define FILE_NAME "data.csv"
+#define LOG_TIME 1 // in s (CHANGE THIS BACK) to 60
+#define THRESH_ACCEL -10 // in ft/s^2 (CHANGE THIS BACK) to 10
+#define FILE_NAME "data.csv" // CHANGING THIS TO A TEXT FILE BC GETTING REALLY GOOFY NUMBERS IN CSV
 
 // Barometer
 #define SEALEVELPRESSURE_HPA (1013.25)
@@ -54,6 +53,7 @@ Adafruit_BMP3XX bmp; // default adress set to 0x77 (I2C address)
 // SD Stuff ---------------------------------------------------
 SdFat SD;
 FsFile dataFile;
+int linspace; // fixes printing for imu to make it easier to see 
 
 
 

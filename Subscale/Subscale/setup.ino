@@ -19,6 +19,8 @@ void setup() {
   Wire.setClock(400000UL);
 
   pinMode(BUZZER, OUTPUT);
+
+  /*
   for(int i = 200; i < 1500; i++){
     tone(BUZZER, i);
     delay(1);
@@ -27,6 +29,10 @@ void setup() {
     tone(BUZZER, i);
     delay(1);
   }
-  tone(BUZZER, 1000);
+  */
+  tone(BUZZER, 450); // CHANGING THIS FROM 1000 DOWN TO 450 BC ANNOYING WHEN TESTING
+
+  // TESTING DOWN HERE FOR PRINT STATEMENTS
+  linspace = 0;
 
 }
