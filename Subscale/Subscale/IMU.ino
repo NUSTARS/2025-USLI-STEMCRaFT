@@ -4,9 +4,9 @@ int getIMUData(sensors_event_t* orientationData, sensors_event_t* angVelocityDat
   bno.getEvent(orientationData, Adafruit_BNO055::VECTOR_EULER);
   bno.getEvent(angVelocityData, Adafruit_BNO055::VECTOR_GYROSCOPE);
   bno.getEvent(linearAccelData, Adafruit_BNO055::VECTOR_LINEARACCEL);
+  
 
   return 0;
-
 }
 
 void printEvent(sensors_event_t* event) {
@@ -16,50 +16,43 @@ void printEvent(sensors_event_t* event) {
     linspace = 0;
   }
 
-  double x = -1000000, y = -1000000 , z = -1000000; //dumb values, easy to spot problem
+  double x = -1000000, y = -1000000, z = -1000000;  //dumb values, easy to spot problem
   if (event->type == SENSOR_TYPE_ACCELEROMETER) {
     Serial.print(" Accl:");
     x = event->acceleration.x;
     y = event->acceleration.y;
     z = event->acceleration.z;
-  }
-  else if (event->type == SENSOR_TYPE_ORIENTATION) {
+  } else if (event->type == SENSOR_TYPE_ORIENTATION) {
     Serial.print(" Orient:");
     x = event->orientation.x;
     y = event->orientation.y;
     z = event->orientation.z;
-  }
-  else if (event->type == SENSOR_TYPE_MAGNETIC_FIELD) {
+  } else if (event->type == SENSOR_TYPE_MAGNETIC_FIELD) {
     Serial.print(" Mag:");
     x = event->magnetic.x;
     y = event->magnetic.y;
     z = event->magnetic.z;
-  }
-  else if (event->type == SENSOR_TYPE_GYROSCOPE) {
+  } else if (event->type == SENSOR_TYPE_GYROSCOPE) {
     Serial.print(" Gyro:");
     x = event->gyro.x;
     y = event->gyro.y;
     z = event->gyro.z;
-  }
-  else if (event->type == SENSOR_TYPE_ROTATION_VECTOR) {
+  } else if (event->type == SENSOR_TYPE_ROTATION_VECTOR) {
     Serial.print(" Rot:");
     x = event->gyro.x;
     y = event->gyro.y;
     z = event->gyro.z;
-  }
-  else if (event->type == SENSOR_TYPE_LINEAR_ACCELERATION) {
+  } else if (event->type == SENSOR_TYPE_LINEAR_ACCELERATION) {
     Serial.print(" Linear:");
     x = event->acceleration.x;
     y = event->acceleration.y;
     z = event->acceleration.z;
-  }
-  else if (event->type == SENSOR_TYPE_GRAVITY) {
+  } else if (event->type == SENSOR_TYPE_GRAVITY) {
     Serial.print(" Gravity:");
     x = event->acceleration.x;
     y = event->acceleration.y;
     z = event->acceleration.z;
-  }
-  else {
+  } else {
     Serial.print(" Unk:");
   }
 
@@ -71,12 +64,4 @@ void printEvent(sensors_event_t* event) {
   Serial.print(z);
 
   linspace++;
-
-
 }
-
-
-
-
-
-

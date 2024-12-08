@@ -37,7 +37,7 @@
 
 #define LOG_FREQ 100 // in Hz
 #define LOG_TIME 1 // in s (CHANGE THIS BACK) to 60
-#define THRESH_ACCEL -10 // in ft/s^2 (CHANGE THIS BACK) to 10
+#define THRESH_ACCEL 50 // in ft/s^2  (PUT TO 50)
 #define FILE_NAME "data.csv" // CHANGING THIS TO A TEXT FILE BC GETTING REALLY GOOFY NUMBERS IN CSV
 
 // Barometer
@@ -46,6 +46,8 @@
 
 // IMU vars  ---------------------------------
 Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28, &Wire);
+#define BNO055_SAMPLERATE_DELAY_MS (100)
+bool calibrated;
 
 // Barometer vars ---------------------------------
 Adafruit_BMP3XX bmp; // default adress set to 0x77 (I2C address)
@@ -93,7 +95,9 @@ void printBarometerData(barometerData* baro);
 // SD Functions
 int setupSD();
 void logData(data* dataArr, int arrLen);
+void logData2(data* dataArr);
 
+void displayCalStatus(void);
 
 
 

@@ -1,9 +1,11 @@
 void setup() {
   Serial.begin(115200);
+  pinMode(BUZZER, OUTPUT);
+  calibrated = false;
 
   delay(1000);
 
-  if(!bno.begin()){
+  if(!bno.begin(OPERATION_MODE_NDOF)){
     Serial.println("BNO Failed");
     tone(BUZZER, 200);
     while(1);
@@ -18,9 +20,9 @@ void setup() {
 
   Wire.setClock(400000UL);
 
-  pinMode(BUZZER, OUTPUT);
+ 
 
-  /*
+  
   for(int i = 200; i < 1500; i++){
     tone(BUZZER, i);
     delay(1);
@@ -29,7 +31,6 @@ void setup() {
     tone(BUZZER, i);
     delay(1);
   }
-  */
   tone(BUZZER, 450); // CHANGING THIS FROM 1000 DOWN TO 450 BC ANNOYING WHEN TESTING
 
   // TESTING DOWN HERE FOR PRINT STATEMENTS
