@@ -11,7 +11,7 @@ void loop() {
     magnitude = sqrt(pow(linearAccelData.acceleration.x, 2) + pow(linearAccelData.acceleration.y, 2) + pow(linearAccelData.acceleration.z, 2));
     uint8_t sys, gyro, accel, mag = 0;
 
-    bno.getCalibration(&sys, &gyro, &accel, &mag);
+    calibration_setup(&sys, &gyro, &accel, &mag);
     /*
     Serial.print(F("Calibration: "));
     Serial.print(sys, DEC);
