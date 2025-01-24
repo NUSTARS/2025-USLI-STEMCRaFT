@@ -10,15 +10,6 @@ Servo actuationServo;
 double i = 0.2; // will be used for testing servo until SPARC function complete
 
 /**
- * Converts the desired percent of flap area actuated to the percent the servo rotates of its total rotation
- * @param flapAreaPercent is the desired percent of flap area actuated
- * @return  the percent of its total rotation that the servo should rotate to actuate the amount of flap area desired
-*/
-double PercentConversion(double flapAreaPercent){
-    return flapAreaPercent*(1.0032);
-}
-
-/**
  * Converts the desired servo rotation percent to an actual servo positions
  * @param servoActuationPercent is the desired servo rotation percent
  * @return the servo angle as an integer
@@ -34,6 +25,6 @@ void setup() {
 
 void loop() {
     desiredAreaPercent = i //will be a function that outputs percent of area needed to cover (use incrementing function for testing)
-    servoAngle = PercentToAngle(PercentConversion(i));
+    servoAngle = PercentToAngle(i);
     actuationServo.write(servoAngle); 
 }
