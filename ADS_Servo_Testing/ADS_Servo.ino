@@ -1,21 +1,21 @@
 #include <Servo.h>
 // add any other libraries needed
 
-double desiredAreaPercent; //double from 0 to 1 given by funciton f from SPARC
-const int SERVO_MIN_ANGLE = 90; //min servo angle corresponding to 0% actuation, right now is arbitrary 
-const int SERVO_MAX_ANGLE = 150; //max servo angle corresponding to 100% actuation, right now is arbitrary 
-int servoAngle;  
+float desiredAreaPercent; //double from 0 to 1 given by funciton f
+const float SERVO_MIN_ANGLE = 8.756; //min servo angle corresponding to 0% actuation
+const float SERVO_MAX_ANGLE = 56.422; //max servo angle corresponding to 100% actuation
+float servoAngle;  
 Servo actuationServo; 
 
-double i = 0; // will be used for testing servo until calculation function complete
+float i = 0; // will be used for testing servo until calculation function complete
 
 /**
  * Converts the desired servo rotation percent to an actual servo positions
  * @param servoActuationPercent is the desired servo rotation percent
  * @return the servo angle as an integer
 */
-int PercentToAngle(double servoActuationPercent){
-    return round((SERVO_MIN_ANGLE + servoActuationPercent*((SERVO_MAX_ANGLE)-(SERVO_MIN_ANGLE))));
+float PercentToAngle(float servoActuationPercent){
+    return (SERVO_MIN_ANGLE + servoActuationPercent*((SERVO_MAX_ANGLE)-(SERVO_MIN_ANGLE)));
 }
 
 void setup() {
@@ -32,10 +32,12 @@ void loop() {
     Serial.print(desiredAreaPercent);
     Serial.print(" -> Servo Angle: ");
     Serial.println(servoAngle);
-
-    i += 0.1;
-    if(i >= 1){
+ 
+    if(i > 1){
       i = 0;
     }
-    delay(500);
+    else{
+      i += 0.1;
+    }
+    delay(1000);
 }
