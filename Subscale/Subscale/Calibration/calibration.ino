@@ -32,3 +32,34 @@ int calibration_setup(Adafruit_BNO055 &bno, uint8_t &sys, uint8_t &gyro, uint8_t
         Serial.println("Calibration data saved to EEPROM.");
     }
 }
+
+Serial.println("---------Acceleration Offsets-------")
+Serial.println("X= ")
+Serial.print(adafruit_bno055_offsets_t.accel_offset_x);
+Serial.println("Y= ")
+Serial.print(adafruit_bno055_offsets_t.accel_offset_y);
+Serial.println("Z= ")
+Serial.print(adafruit_bno055_offsets_t.accel_offset_z);
+Serial.println()
+
+Serial.println("---------Magnitude Offsets-------")
+Serial.println("Mag X offset: = ")
+Serial.print(adafruit_bno055_offsets_t.mag_offset_x);
+Serial.println("Mag Y offset: = ")
+Serial.print(adafruit_bno055_offsets_t.mag_offset_y);
+Serial.println("Mag Z offset: = ")
+Serial.print(adafruit_bno055_offsets_t.mag_offset_z);
+
+Serial.println("---------Gyro Offsets-------")
+Serial.println("Gyro X offset: = ")
+Serial.print(adafruit_bno055_offsets_t.gyro_offset_x);
+Serial.println("Gyro Y offset: = ")
+Serial.print(adafruit_bno055_offsets_t.gyro_offset_y);
+Serial.println("Gyro Z offset: = ")
+Serial.print(adafruit_bno055_offsets_t.gyro_offset_z);
+
+Serial.println("Accel Radius: = ")
+Serial.print(adafruit_bno055_offsets_t.accel_radius);
+
+Serial.println("Mag Radius: = ")
+Serial.print(adafruit_bno055_offsets_t.mag_radius);
