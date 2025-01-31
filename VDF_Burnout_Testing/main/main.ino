@@ -1,3 +1,8 @@
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include "Adafruit_BMP3XX.h"
+#include <Adafruit_BNO055.h>
+
 void loop() {
 
   sensors_event_t orientationData, angVelocityData, linearAccelData;
