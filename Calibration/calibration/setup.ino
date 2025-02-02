@@ -90,8 +90,7 @@ void setup() {
   if (bnoID == sensor.sensor_id) {
     EEPROM.get(eeAddress + sizeof(long), calibrationData);
     displaySensorOffsets(calibrationData);
-
-    bno.setMode(OPERATION_MODE_CONFIG); // Ensure in config mode
+    bno.setMode(OPERATION_MODE_CONFIG);
     delay(10);
     bno.setSensorOffsets(calibrationData);
     bno.setMode(OPERATION_MODE_NDOF);
