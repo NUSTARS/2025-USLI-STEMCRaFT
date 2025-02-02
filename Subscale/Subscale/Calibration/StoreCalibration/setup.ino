@@ -90,10 +90,15 @@ void setup() {
   if (bnoID == sensor.sensor_id) {
     EEPROM.get(eeAddress + sizeof(long), calibrationData);
     displaySensorOffsets(calibrationData);
+
+    bno.setMode(OPERATION_MODE_CONFIG); // Ensure in config mode
+    delay(10);
     bno.setSensorOffsets(calibrationData);
+    bno.setMode(OPERATION_MODE_NDOF);
     Serial.println("Calibration data loaded from EEPROM.");
     bno.getSensorOffsets(calibrationData);
     foundCalibration = true;
+    delay(5000);
   } else {
     Serial.println("No calibration data found in EEPROM.");
     delay(500);
