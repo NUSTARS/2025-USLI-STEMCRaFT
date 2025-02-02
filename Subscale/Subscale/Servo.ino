@@ -1,4 +1,3 @@
-#include <Servo.h>
 // add any other libraries needed for SPARC
 
 double desiredAreaPercent; //double from 0 to 1 given by funciton f from SPARC
@@ -12,7 +11,7 @@ Servo actuationServo;  // will be used for testing servo until SPARC function co
 */
 void SetDesiredAreaPercent(double desiredAreaPercent)
 {
-  flapAreaPercent = desiredAreaPercent;
+  double flapAreaPercent = desiredAreaPercent;
   servoAngle = PercentToAngle(PercentConversion(flapAreaPercent));
   actuationServo.write(servoAngle);
   return;
@@ -45,4 +44,4 @@ int PercentToAngle(double servoActuationPercent){
 //    desiredAreaPercent = i //will be a function that outputs percent of area needed to cover (use incrementing function for testing)
 //    servoAngle = PercentToAngle(PercentConversion(i));
 //    actuationServo.write(servoAngle); 
-}
+//}

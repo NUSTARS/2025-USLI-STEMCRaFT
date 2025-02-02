@@ -27,18 +27,21 @@
 
 // ---------- Include ---------- //
 #include <Wire.h>
+#include <Servo.h>
 #include <Adafruit_Sensor.h>
 #include "Adafruit_BMP3XX.h"
 #include <Adafruit_BNO055.h>
-#include <SdFat.h> 
+#include <SdFat.h>
 #include <SPI.h>
+#include <EEPROM.h>
 
 #define BUZZER 12
 
 #define LOG_FREQ 100 // in Hz
 #define LOG_TIME 1 // in s (CHANGE THIS BACK) to 60
-#define THRESH_ACCEL 50 // in ft/s^2  (PUT TO 50)
+#define THRESH_ACCEL 20 // in ft/s^2  (PUT TO 50)
 #define FILE_NAME "data.csv" // CHANGING THIS TO A TEXT FILE BC GETTING REALLY GOOFY NUMBERS IN CSV
+
 
 // Barometer
 #define SEALEVELPRESSURE_HPA (1013.25)
@@ -98,6 +101,14 @@ void logData(data* dataArr, int arrLen);
 void logData2(data* dataArr);
 
 void displayCalStatus(void);
+
+void calibration_setup(Adafruit_BNO055& bno, uint8_t& sys, uint8_t& gyro, uint8_t& accel, uint8_t& mag);
+
+bool openFlaps(sensors_event_t* event);
+
+void displaySensorStatus(void);
+void displayCalStatus(void);
+void displaySensorOffsets(const adafruit_bno055_offsets_t &calibData);
 
 
 
