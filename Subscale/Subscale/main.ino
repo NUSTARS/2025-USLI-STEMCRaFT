@@ -1,31 +1,49 @@
+
+
 void loop() {
 
   sensors_event_t orientationData, angVelocityData, linearAccelData;
   barometerData baro;
   float magnitude;
+  float altitude_offset = 0.0;
+
+  getBarometerData(&baro, altitude_offset);
+  delay(BNO055_SAMPLERATE_DELAY_MS);
+  getBarometerData(&baro, altitude_offset);
+  Serial.print(altitude_offset);
+  altitude_offset = (&baro)->alt; 
+  Serial.print(altitude_offset);
+  printBarometerData(&baro);
+
 
   // STARTUP WAITING
   do {
     getIMUData(&orientationData, &angVelocityData, &linearAccelData);
+    getBarometerData(&baro, altitude_offset);
+
 
     magnitude = sqrt(pow(linearAccelData.acceleration.x, 2) + pow(linearAccelData.acceleration.y, 2) + pow(linearAccelData.acceleration.z, 2));
 
     //calibration_setup(bno, sys, gyro, accel, mag);
-    /*
-    Serial.print(F("Calibration: "));
-    Serial.print(sys, DEC);
-    Serial.print(F(", "));
-    Serial.print(gyro, DEC);
-    Serial.print(F(", "));
-    Serial.print(accel, DEC);
-    Serial.print(F(", "));
-    Serial.print(mag, DEC);
-    Serial.println(F(""));
-    Serial.println(calibrated);
-    */
+    
+    // Serial.print(F("Calibration: "));
+    // Serial.print(sys, DEC);
+    // Serial.print(F(", "));
+    // Serial.print(gyro, DEC);
+    // Serial.print(F(", "));
+    // Serial.print(accel, DEC);
+    // Serial.print(F(", "));
+    // Serial.print(mag, DEC);
+    // Serial.println(F(""));
+    // Serial.println(calibrated);
+
+    // printEvent(&orientationData);
+    // printEvent(&angVelocityData);
+    printEvent(&linearAccelData);
+    printBarometerData(&baro);
+    
     delay(BNO055_SAMPLERATE_DELAY_MS);
 
-    
 
     Serial.print("\t\tNOT LAUNCHED YET\t\t");
     Serial.println(magnitude);
@@ -39,16 +57,23 @@ void loop() {
   int currentPoint = 0;
   //unsigned long loggingStartTime = millis();  // Capture start time
 
-  while (!openFlaps(&linearAccelData));
-  {
+
+
+  while (!openFlaps(&linearAccelData, &baro)) {
     Serial.println("Burnout not reached.");
+    getIMUData(&orientationData, &angVelocityData, &linearAccelData);
+    getBarometerData(&baro, altitude_offset);
+    printEvent(&linearAccelData);
+    printBarometerData(&baro);
   }
+  Serial.println("Burnout reached!!.");
+
 
   for (int i = 0; i < 6000; i++) {  // 6000 originally, making it less for testing
     unsigned long timeStarted = millis();
 
     getIMUData(&orientationData, &angVelocityData, &linearAccelData);
-    getBarometerData(&baro);
+    getBarometerData(&baro, altitude_offset);
 
     // CHANGING CURERNT POINT TO i
     dataArr[currentPoint].pressure = baro.press;
@@ -69,8 +94,8 @@ void loop() {
 
     //printEvent(&orientationData);
     //printEvent(&angVelocityData);
-    //printEvent(&linearAccelData);
-    //printBarometerData(&baro);
+    // printEvent(&linearAccelData);
+    // printBarometerData(&baro);
 
     while (millis() - timeStarted < 1000.0 / LOG_FREQ) {}
 

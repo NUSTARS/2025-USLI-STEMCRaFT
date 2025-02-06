@@ -16,7 +16,7 @@ int setupBarometer() {
 
 
 // -1 if failed, 0 if success
-int getBarometerData(barometerData* baro) {
+int getBarometerData(barometerData* baro, float altitude_offset) {
 
   if(!bmp.performReading()) {
     return -1;
@@ -24,7 +24,7 @@ int getBarometerData(barometerData* baro) {
 
   baro->temp = bmp.temperature * 9/5 + 32; // to Fahrenheit
   baro->press = bmp.pressure / 100;        // to mbar
-  baro->alt = bmp.readAltitude(1013.25) * 3.28084; // to feet
+  baro->alt = bmp.readAltitude(1013.25) * 3.28084 - altitude_offset; // to feet
 
   return 0;
 }

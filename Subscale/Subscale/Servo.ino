@@ -6,9 +6,13 @@ const int SERVO_MAX_ANGLE = 90; //max servo angle corresponding to 100% actuatio
 int servoAngle;  
 Servo actuationServo;  // will be used for testing servo until SPARC function complete
 
-/**
- * Sets the desired precent of flap area open on the servo.
-*/
+
+void ServoSetup() {
+  actuationServo.attach(4); // replace with actual pin
+  actuationServo.write(SERVO_MIN_ANGLE); 
+
+}
+
 void SetDesiredAreaPercent(double desiredAreaPercent)
 {
   double flapAreaPercent = desiredAreaPercent;

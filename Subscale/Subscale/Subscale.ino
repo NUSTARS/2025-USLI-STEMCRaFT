@@ -41,7 +41,8 @@
 #define LOG_TIME 1 // in s (CHANGE THIS BACK) to 60
 #define THRESH_ACCEL 20 // in ft/s^2  (PUT TO 50)
 #define FILE_NAME "data.csv" // CHANGING THIS TO A TEXT FILE BC GETTING REALLY GOOFY NUMBERS IN CSV
-
+#define BNO055_SAMPLERATE_DELAY_MS (100)
+#define BURNOUT_HEIGHT 2 //ft
 
 // Barometer
 #define SEALEVELPRESSURE_HPA (1013.25)
@@ -51,6 +52,7 @@
 Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28, &Wire);
 #define BNO055_SAMPLERATE_DELAY_MS (100)
 bool calibrated;
+int altitude_offset;
 
 // Barometer vars ---------------------------------
 Adafruit_BMP3XX bmp; // default adress set to 0x77 (I2C address)
@@ -59,8 +61,6 @@ Adafruit_BMP3XX bmp; // default adress set to 0x77 (I2C address)
 SdFat SD;
 FsFile dataFile;
 int linspace; // fixes printing for imu to make it easier to see 
-
-
 
 // Structs -----------------------------------------------------
 struct barometerData {
@@ -92,7 +92,7 @@ void printEvent(sensors_event_t* event);
 
 // Barometer Functions
 int setupBarometer();
-int getBarometerData(barometerData* baro);
+int getBarometerData(barometerData* baro, float altitude_offset);
 void printBarometerData(barometerData* baro);
 
 // SD Functions
@@ -101,10 +101,14 @@ void logData(data* dataArr, int arrLen);
 void logData2(data* dataArr);
 
 void displayCalStatus(void);
+void cal_setup(void);
 
 void calibration_setup(Adafruit_BNO055& bno, uint8_t& sys, uint8_t& gyro, uint8_t& accel, uint8_t& mag);
 
-bool openFlaps(sensors_event_t* event);
+bool openFlapsAccel(sensors_event_t* event);
+bool openFlapsHeight(barometerData* baro);
+bool openFlaps(sensors_event_t* event, barometerData* baro);
+
 
 void displaySensorStatus(void);
 void displayCalStatus(void);
