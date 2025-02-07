@@ -55,19 +55,44 @@ void loop() {
   // LOGGING
   data dataArr[LOG_TIME * LOG_FREQ];
   int currentPoint = 0;
-  //unsigned long loggingStartTime = millis();  // Capture start time
+  unsigned long loggingStartTime = millis();  // Capture start time
 
 
 
   while (!openFlaps(&linearAccelData, &baro)) {
+    unsigned long timeStarted = millis();
     Serial.println("Burnout not reached.");
     getIMUData(&orientationData, &angVelocityData, &linearAccelData);
     getBarometerData(&baro, altitude_offset);
-    printEvent(&linearAccelData);
-    printBarometerData(&baro);
-  }
-  Serial.println("Burnout reached!!.");
+    // printEvent(&linearAccelData);
+    // printBarometerData(&baro);
 
+    dataArr[currentPoint].pressure = baro.press;
+    dataArr[currentPoint].temp = baro.temp;
+    dataArr[currentPoint].altitude = baro.alt;
+
+    dataArr[currentPoint].euler_x = orientationData.orientation.x;
+    dataArr[currentPoint].euler_y = orientationData.orientation.y;
+    dataArr[currentPoint].euler_z = orientationData.orientation.z;
+
+    dataArr[currentPoint].accel_x = linearAccelData.acceleration.x;
+    dataArr[currentPoint].accel_y = linearAccelData.acceleration.y;
+    dataArr[currentPoint].accel_z = linearAccelData.acceleration.z;
+
+    dataArr[currentPoint].ang_x = linearAccelData.gyro.x;
+    dataArr[currentPoint].ang_y = linearAccelData.gyro.y;
+    dataArr[currentPoint].ang_z = linearAccelData.gyro.z;
+
+
+    while (millis() - timeStarted < 1000.0 / LOG_FREQ) {}
+
+    dataArr[currentPoint].time = millis();
+
+    logData2(dataArr);
+  
+  }
+
+  Serial.println("Burnout reached!!.");
 
   for (int i = 0; i < 6000; i++) {  // 6000 originally, making it less for testing
     unsigned long timeStarted = millis();
@@ -111,8 +136,7 @@ void loop() {
 
   //SD WRITE
 
-
-  //Serial.println("DONE LOGGING");
+  Serial.println("DONE LOGGING");
 
 
   // END
