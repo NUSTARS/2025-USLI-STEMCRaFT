@@ -39,15 +39,17 @@
 #define SERVO_PIN 24
 
 
-#define LOG_FREQ 100 // in Hz
-#define LOG_TIME 1 // in s (CHANGE THIS BACK) to 60
-#define THRESH_ACCEL 20 // in ft/s^2  (PUT TO 50)
+#define LOG_FREQ 50 // in Hz
+#define LOG_TIME 60 // in s (CHANGE THIS BACK) to 60
+#define THRESH_ACCEL 30 // in ft/s^2  (PUT TO 50)
 #define FILE_NAME "data.csv" // CHANGING THIS TO A TEXT FILE BC GETTING REALLY GOOFY NUMBERS IN CSV
 #define BNO055_SAMPLERATE_DELAY_MS (100)
-#define BURNOUT_HEIGHT 2 //ft
+#define BURNOUT_HEIGHT 400 //ft
 
 // Barometer
 #define SEALEVELPRESSURE_HPA (1013.25)
+
+#define RECALIB 1 // 1 = recalibrate, 0 = dont
 
 
 // IMU vars  ---------------------------------
@@ -103,7 +105,7 @@ void logData(data* dataArr, int arrLen);
 void logData2(data* dataArr);
 
 void displayCalStatus(void);
-void cal_setup(void);
+bool cal_setup(void);
 
 void calibration_setup(Adafruit_BNO055& bno, uint8_t& sys, uint8_t& gyro, uint8_t& accel, uint8_t& mag);
 

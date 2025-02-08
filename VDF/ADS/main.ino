@@ -2,6 +2,7 @@
 
 void loop() {
 
+
   sensors_event_t orientationData, angVelocityData, linearAccelData;
   barometerData baro;
   float magnitude;
@@ -53,7 +54,7 @@ void loop() {
 
 
   // LOGGING
-  data dataArr[LOG_TIME * LOG_FREQ];
+  data dataArr[2*LOG_TIME * LOG_FREQ];
   int currentPoint = 0;
   unsigned long loggingStartTime = millis();  // Capture start time
 
@@ -96,8 +97,9 @@ void loop() {
   }
 
   Serial.println("Burnout reached!!.");
+  tone(BUZZER, 600);
 
-  for (int i = 0; i < 2000; i++) {  // 6000 originally, making it less for testing
+  for (int i = 0; i < LOG_TIME * LOG_FREQ; i++) {  // 6000 originally, making it less for testing
     unsigned long timeStarted = millis();
 
     getIMUData(&orientationData, &angVelocityData, &linearAccelData);
@@ -140,6 +142,7 @@ void loop() {
   //SD WRITE
 
   Serial.println("DONE LOGGING");
+  actuationServo.write(SERVO_MIN_ANGLE);
 
 
   // END

@@ -1,14 +1,14 @@
 // add any other libraries needed for SPARC
 
 double desiredAreaPercent; //double from 0 to 1 given by funciton f from SPARC
-const int SERVO_MIN_ANGLE = 30; //min servo angle corresponding to 0% actuation, right now is arbitrary 
-const int SERVO_MAX_ANGLE = 90; //max servo angle corresponding to 100% actuation, right now is arbitrary 
+const int SERVO_MIN_ANGLE = 115; //min servo angle corresponding to 0% actuation, right now is arbitrary 
+const int SERVO_MAX_ANGLE = 70; //max servo angle corresponding to 100% actuation, right now is arbitrary 
 int servoAngle;  
 Servo actuationServo;  // will be used for testing servo until SPARC function complete
 
 
 void ServoSetup() {
-  actuationServo.attach(SERVO_PIN); // replace with actual pin
+  actuationServo.attach(SERVO_PIN, 500, 2500); // replace with actual pin
   actuationServo.write(SERVO_MIN_ANGLE); 
 
 }
@@ -16,8 +16,8 @@ void ServoSetup() {
 void SetDesiredAreaPercent(double desiredAreaPercent)
 {
   double flapAreaPercent = desiredAreaPercent;
-  servoAngle = PercentToAngle(PercentConversion(flapAreaPercent));
-  actuationServo.write(servoAngle);
+  // servoAngle = PercentToAngle(PercentConversion(flapAreaPercent));
+  actuationServo.write(SERVO_MAX_ANGLE);
   return;
 }
 

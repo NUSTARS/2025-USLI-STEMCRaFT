@@ -69,11 +69,18 @@
 // }
 
 void setup() {
+  Serial.println("STARTING");
   Serial.begin(115200);
   pinMode(BUZZER, OUTPUT);
   calibrated = false;
 
   delay(1000);
+
+  for(int i = 200; i < 1500; i++){
+    tone(BUZZER, i);
+    delay(1);
+  }
+  tone(BUZZER, 0);
 
   if(!bno.begin(OPERATION_MODE_NDOF)){
     Serial.println("BNO Failed");
@@ -95,7 +102,11 @@ void setup() {
   Wire.setClock(400000UL);
 
   Adafruit_BNO055 bno = Adafruit_BNO055(55);
-  cal_setup();
+  if(!cal_setup()){
+    tone(BUZZER, 200);
+    delay(2000);
+    tone(BUZZER,0);
+  }
 
   ServoSetup();
 

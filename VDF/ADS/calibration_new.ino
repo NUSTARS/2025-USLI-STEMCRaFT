@@ -116,7 +116,7 @@ void bunnyPrintCalibration() {
 }
 
 
-void cal_setup(void)
+bool cal_setup(void)
 {
     bool zero = true;
     bool calibrate = true;
@@ -182,7 +182,7 @@ void cal_setup(void)
   
       sensors_event_t event;
       bno.getEvent(&event);
-      if (foundCalib){
+      if (foundCalib && RECALIB == 0){
           Serial.println("Move sensor slightly to calibrate magnetometers");
           while (!bno.isFullyCalibrated())
           {
@@ -193,8 +193,12 @@ void cal_setup(void)
       else
       {
           Serial.println("Please Calibrate Sensor: ");
+          long long time = millis();
           while (!bno.isFullyCalibrated())
           {
+              if((millis()-time)/1000 >= 60) {//after 2 min fails
+                return false;
+              }
               bno.getEvent(&event);
   
               imu::Vector<3> euler = bno.getQuat().toEuler();
@@ -252,11 +256,5 @@ void cal_setup(void)
     
     bno.setMode(0X0C);
     delay(500);
+    return true;
 }
-
-
-// static int8_t sgn(int val) {
-//  if (val < 0) return -1;
-//  if (val==0) return 0;
-//  return 1;
-// }
