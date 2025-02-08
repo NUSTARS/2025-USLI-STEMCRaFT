@@ -48,6 +48,8 @@ void loop() {
 
     Serial.print("\t\tNOT LAUNCHED YET\t\t");
     Serial.println(magnitude);
+    printEvent(&linearAccelData);
+    printBarometerData(&baro);
   } while (magnitude < THRESH_ACCEL);
   Serial.println("LAUNCHED!");
   tone(BUZZER, 1500);
