@@ -1,0 +1,232 @@
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BNO055.h>
+#include <utility/imumaths.h>
+
+
+// delay between each samples
+uint16_t BNO055_SAMPLERATE_DELAY_MS = 1000;
+
+// number of datapoints: orientation, linear, gravity
+const int NUMBER_DATAPOINTS = 3;
+
+// check if the sensors are still connected
+bool firstSensorFound;
+bool secondSensorFound;
+
+
+// initialize each Adafruit
+Adafruit_BNO055 bno = Adafruit_BNO055(1, 0x28, &Wire);
+Adafruit_BNO055 bno2 = Adafruit_BNO055(2, 0x29, &Wire);
+
+//
+// calculate averages
+//
+float average(float input1, float input2) 
+{
+  return (input1+input2)/2;
+}
+
+//
+// check if sensor data is all equal, which indicates sensor disconnected
+//
+bool checkEmpty(sensors_event_t events[]) 
+{
+  for (int i = 0; i < NUMBER_DATAPOINTS; i++)
+  {
+    bool all_zeros = false;
+    double x = 0, y = 0 , z = 0; //dumb values, easy to spot problem
+
+    if (events[i].type == SENSOR_TYPE_ORIENTATION) 
+    {
+      x = events[i].orientation.x;
+      y = events[i].orientation.y;
+      z = events[i].orientation.z;
+    }
+    else if (events[i].type == SENSOR_TYPE_LINEAR_ACCELERATION) 
+    {
+      x = events[i].acceleration.x;
+      y = events[i].acceleration.y;
+      z = events[i].acceleration.z;
+    }
+    else if (events[i].type == SENSOR_TYPE_GRAVITY) 
+    {
+      x = events[i].acceleration.x;
+      y = events[i].acceleration.y;
+      z = events[i].acceleration.z;
+    }
+
+    if (x != 0 || y != 0 || z != 0) 
+    {
+      return false;
+    }
+  }
+
+  return true;
+
+}
+
+void setup(void)
+{
+  Serial.begin(115200);
+
+  while (!Serial) delay(10); 
+
+  // start each sensors; if false, not found the sensor
+  firstSensorFound = bno.begin();
+  secondSensorFound = bno2.begin();
+
+  if (firstSensorFound)
+    bno.setExtCrystalUse(true);
+
+  if (secondSensorFound)
+    bno2.setExtCrystalUse(true);
+
+  delay(1000);
+}
+
+void loop(void)
+{
+  // set up each data array
+  sensors_event_t data[NUMBER_DATAPOINTS];
+  sensors_event_t data2[NUMBER_DATAPOINTS];
+
+  // fill values of data; order of data: orientation, linearAccel, gravity
+  bno.getEvent(&data[0], Adafruit_BNO055::VECTOR_EULER);
+  bno.getEvent(&data[1], Adafruit_BNO055::VECTOR_LINEARACCEL);
+  bno.getEvent(&data[2], Adafruit_BNO055::VECTOR_GRAVITY);
+
+  // fill values of data2
+  bno2.getEvent(&data2[0], Adafruit_BNO055::VECTOR_EULER);
+  bno2.getEvent(&data2[1], Adafruit_BNO055::VECTOR_LINEARACCEL);
+  bno2.getEvent(&data2[2], Adafruit_BNO055::VECTOR_GRAVITY);
+
+  // if the sensors all have 0, must be disconnected
+  firstSensorFound = !checkEmpty(data);
+  secondSensorFound = !checkEmpty(data2);
+
+  if (!firstSensorFound && !secondSensorFound) 
+  {
+    Serial.println("Both Sensors Disconnected");
+    while(1);
+  }
+  else if (!firstSensorFound) 
+  {
+    Serial.println("Sensor 1 disconnected; only using sensor two");
+    printEvents(data);
+    printEvents(data2);
+  }
+  else if (!secondSensorFound) 
+  {
+    Serial.println("Sensor 2 disconnected; only using sensor one");
+    printEvents(data);
+    printEvents(data2);
+  } 
+  else 
+  {
+    Serial.println("Both Sensors Connected");
+
+    // print out the averages of each data
+    printAverageEvents(data, data2); 
+
+    // // test if each sensor works
+    // printEvents(data);
+    // printEvents(data2);
+  }
+
+  Serial.println("--");
+  delay(BNO055_SAMPLERATE_DELAY_MS);
+}
+
+
+//
+// output each data point from individual sensors
+//
+void printEvents(sensors_event_t events[]) 
+{
+  for (int i = 0; i < NUMBER_DATAPOINTS; i++)
+  {
+    double x = -1000000, y = -1000000 , z = -1000000; //dumb values, easy to spot problem
+
+    if (events[i].type == SENSOR_TYPE_ORIENTATION) 
+    {
+      Serial.print("Orient: ");
+      x = events[i].orientation.x;
+      y = events[i].orientation.y;
+      z = events[i].orientation.z;
+    }
+    else if (events[i].type == SENSOR_TYPE_LINEAR_ACCELERATION) 
+    {
+      Serial.print("Linear: ");
+      x = events[i].acceleration.x;
+      y = events[i].acceleration.y;
+      z = events[i].acceleration.z;
+    }
+    else if (events[i].type == SENSOR_TYPE_GRAVITY) 
+    {
+      Serial.print("Gravity: ");
+      x = events[i].acceleration.x;
+      y = events[i].acceleration.y;
+      z = events[i].acceleration.z;
+    }
+    else 
+    {
+      Serial.print("Unk:");
+    }
+
+    Serial.print("\tx= ");
+    Serial.print(x);
+    Serial.print(" |\ty= ");
+    Serial.print(y);
+    Serial.print(" |\tz= ");
+    Serial.println(z);
+  }
+}
+
+//
+// output average data from the two sensors
+//
+void printAverageEvents(sensors_event_t events[], sensors_event_t events2[]) 
+{
+  for (int i = 0; i < NUMBER_DATAPOINTS; i++) 
+  {
+    double x = -1000000, y = -1000000 , z = -1000000; //dumb values, easy to spot problem
+
+    if (events[i].type == SENSOR_TYPE_ORIENTATION) 
+    {
+      Serial.print("Average Orient: ");
+
+      x = average(events[i].orientation.x, events2[i].orientation.x);
+      y = average(events[i].orientation.y, events2[i].orientation.y);
+      z = average(events[i].orientation.z, events2[i].orientation.z);
+    }
+    else if (events[i].type == SENSOR_TYPE_LINEAR_ACCELERATION) 
+    {
+      Serial.print("Average Linear: ");
+
+      x = average(events[i].acceleration.x, events2[i].acceleration.x);
+      y = average(events[i].acceleration.y, events2[i].acceleration.y);
+      z = average(events[i].acceleration.z, events2[i].acceleration.z);
+    }
+    else if (events[i].type == SENSOR_TYPE_GRAVITY) 
+    {
+      Serial.print("Average Gravity: ");
+
+      x = average(events[i].acceleration.x, events2[i].acceleration.x);
+      y = average(events[i].acceleration.y, events2[i].acceleration.y);
+      z = average(events[i].acceleration.z, events2[i].acceleration.z);
+    }
+    else 
+    {
+      Serial.print("Unk:");
+    }
+
+    Serial.print("\tx= ");
+    Serial.print(x);
+    Serial.print(" |\ty= ");
+    Serial.print(y);
+    Serial.print(" |\tz= ");
+    Serial.println(z);
+
+  }
+}
