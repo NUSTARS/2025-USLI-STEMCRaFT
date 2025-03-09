@@ -3,6 +3,9 @@
 #include <Adafruit_BNO055.h>
 #include <utility/imumaths.h>
 
+#include <EEPROM.h>
+
+#define EEPROM_SIZE 26
 
 // delay between each samples
 uint16_t BNO055_SAMPLERATE_DELAY_MS = 1000;
@@ -13,6 +16,10 @@ const int NUMBER_DATAPOINTS = 3;
 // check if the sensors are still connected
 bool firstSensorFound;
 bool secondSensorFound;
+
+// initialize isCalibrated?
+bool isFirstBNOCalibrated;
+bool isSecondBNOCalibrated;
 
 
 // initialize each Adafruit
@@ -76,17 +83,46 @@ void setup(void)
   firstSensorFound = bno.begin();
   secondSensorFound = bno2.begin();
 
-  if (firstSensorFound)
-    bno.setExtCrystalUse(true);
+  isFirstBNOCalibrated = false;
+  isSecondBNOCalibrated = false;
 
-  if (secondSensorFound)
-    bno2.setExtCrystalUse(true);
+  EEPROM.begin(EEPROM_SIZE);
+  // EEPROM.write(0, 10); 
+  // EEPROM.commit();
+
+  // call calibration
+  // calibration_setup(Adafruit_BNO055 &bno, uint8_t &sys, uint8_t &gyro, uint8_t &accel, uint8_t &mag)
+  // cal_setup();
 
   delay(1000);
+
+  // int storedValue = EEPROM.read(0);
+
+  // Serial.print("Stored Value: "); Serial.println(storedValue); 
+
+  delay(1000); 
 }
 
 void loop(void)
 {
+  // call calibration function for the first bno
+
+  // if (!isFirstBNOCalibrated)
+  // {
+  //   isFirstBNOCalibrated = cal_setup(bno, 0);
+  // }
+
+  if (!isSecondBNOCalibrated)
+  {
+    isSecondBNOCalibrated = cal_setup(bno, 26);
+  }
+
+  EEPROM.commit();
+  EEPROM.end();
+
+  // // call calibration for second sensor of bno
+  // calibration_setup(bno2, data2);
+
   // set up each data array
   sensors_event_t data[NUMBER_DATAPOINTS];
   sensors_event_t data2[NUMBER_DATAPOINTS];
