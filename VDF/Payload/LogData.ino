@@ -1,3 +1,4 @@
+/*
 int setupSD() {
   if (!SD.begin(SdioConfig(FIFO_SDIO))) { // Test to see if the SD card is there
     return -1;
@@ -9,7 +10,7 @@ int setupSD() {
 
 
 
-
+/*
 void logData2(data* dataArr) {
   dataFile = SD.open(FILE_NAME, O_RDWR | O_CREAT | O_AT_END);
 
@@ -40,6 +41,7 @@ void logData2(data* dataArr) {
   dataFile.write(line.c_str());
   dataFile.close();  
 }
+*/
 
 /*
 void logData(data* dataArr, int arrLen) {
