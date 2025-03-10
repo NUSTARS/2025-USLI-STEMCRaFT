@@ -1,7 +1,10 @@
 void setup() {
+  setupBNOs();
   RFSwitcherSetup();
   voltageSensingSetup();
   LoRaSetup();
+  cal_setup(bno1, 0);
+  cal_setup(bno2, 26);
 }
 
 // main flight loop

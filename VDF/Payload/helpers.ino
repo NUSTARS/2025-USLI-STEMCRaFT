@@ -1,5 +1,5 @@
 bool detectLaunch(){
-  Eigen::Vector3f accel = getAccel();
+  Eigen::Vector3f accel = Eigen::Vector3f getLinearAcceleration();
   return accel.norm() > ACCEL_THRESHOLD; 
 }
 
