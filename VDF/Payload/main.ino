@@ -1,35 +1,13 @@
-void setup() {}
+void setup() {
+  RFSwitcherSetup();
+  voltageSensingSetup();
+  LoRaSetup();
+}
 
 // main flight loop
 
 void loop() {
   switch (state) {
-    case INIT:
-
-      pinMode(RS_0, OUTPUT);
-      pinMode(RS_1, OUTPUT);
-      pinMode(RS_2, OUTPUT);
-
-      LoRaSetup();
-
-      state = CALIBRATE; // directly flow into CALIBRATE
-      start_of_state_millis = millis();
-
-    case CALIBRATE:
-
-      // if BNOs are calibrated or we have waited
-      // longer than MAX_CALIB_TIME, then advance state
-      // to WAIT_FOR_LAUNCH
-
-      /*
-      if ((millis() > start_of_state_millis + MAX_CALIB_TIME) | 
-          (**FIXME, true if calibrated**)) {
-        state = WAIT_FOR_LAUNCH;
-      }
-      */
-
-      break;
-
     case WAIT_FOR_LAUNCH:
       // if we detect launch
       // then advance state to record launch
@@ -70,7 +48,7 @@ void loop() {
       I WISH FOR THIS FUNCTION
       sensors_event_t gravity = getGravity(); // get gravity vector
       */
-      switchAntennaGivenGravity(gravity);
+      //switchAntennaGivenGravity(gravity);
 
       // transmit data
 

@@ -12,7 +12,7 @@ void LoRaSetup(void) {
 
 bool receiveStopSignal(void) {
   if (LoRaSerialPort.available() > 0) {
-    incoming_string = LoRaSerialPort.readString();
+    String incoming_string = LoRaSerialPort.readString();
     return incoming_string.indexOf(LORA_STOP_CHAR) >= 0;
   }
 }
