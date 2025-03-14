@@ -31,7 +31,7 @@
 #include <Adafruit_BNO055.h>
 #include <SPI.h>
 #include <EEPROM.h>
-#include "SoftwareSerial.h"
+#include <HardwareSerial.h>
 #include <ArduinoEigenDense.h>
 #include <ESP32Time.h>
 
@@ -87,7 +87,8 @@ ESP32Time rtc(-18000);  // offset in seconds GMT+1
 // structs/enums
 enum LaunchStates {
   WAIT_FOR_LAUNCH,
-  RECORD_LAUNCH,
+  FLY,
+  DETECT_LANDING,
   TRANSMIT,
   DONE
 };
@@ -105,7 +106,7 @@ Adafruit_BNO055 bno2 = Adafruit_BNO055(55, IMU_ADDRESS_B, &Wire);
 
 bool calibrated;
 
-EspSoftwareSerial::UART LoRaSerialPort;
+HardwareSerial LoRaSerialPort(1);
 
 // Functions -------------------------------------------------------------------------
 

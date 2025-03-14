@@ -12,48 +12,47 @@ void setup() {
 void loop() {
   switch (state) {
     case WAIT_FOR_LAUNCH:
+
       // if we detect launch
       // then advance state to record launch
-      getIMUData(&orientationData, &angVelocityData, &linearAccelData);
-
-      magnitude = sqrt(pow(linearAccelData.acceleration.x, 2) + pow(linearAccelData.acceleration.y, 2) + pow(linearAccelData.acceleration.z, 2));
-
-      delay(BNO055_SAMPLERATE_DELAY_MS);
-      
-      if (magnitude >= THRESH_ACCEL) {
+      if (detectLaunch()) {
         start_of_state_millis = millis();
         state = RECORD_LAUNCH;
       }
+      
+      break;
+
+    case FLY:
+      // read and write IMU data
+
+      
 
       break;
 
-    case RECORD_LAUNCH:
-      // read and write IMU data
+    case DETECT_LANDING:
 
-      // detect landing
-
-      
-      
       // once we have been recording for the
       // specified amount of time, stop recording
-      // by advancing the state
-      
-      if (millis() > start_of_state_millis + EXPECTED_FLIGHT_TIME) {
+      // by advancing the state      
+      if (detectLanding()) {
         start_of_state_millis = millis();
         lora_helper_millis = start_of_state_millis;
       }
-      break;
+
+      break;  
 
     case TRANSMIT:
 
       // detect which antenna is up and make RF Switch:
-      /*
-      I WISH FOR THIS FUNCTION
-      sensors_event_t gravity = getGravity(); // get gravity vector
-      */
-      //switchAntennaGivenGravity(gravity);
+      Eigen::Vector3f gravity = getGravity();
 
+      switchAntennaGivenGravity(gravity);
+
+      Eigen::Vector3f orientation = getOrientation();
       // transmit data
+      float batVoltage = getBatteryVoltage();
+
+      sendAPRSData(batVoltage, );
 
       // if time is up or we receive a LoRa message
       // stop transmitting by advancing the state.

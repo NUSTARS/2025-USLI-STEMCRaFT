@@ -15,5 +15,6 @@ bool detectLanding(unsigned long launch_time, Eigen::Vector3f gravity){
 }
 
 void sendAPRSData(float batVoltage, Eigen::Vector3f orientation, struct tm landingTime){
-
-}
+  std::string out = "";
+  out += batVoltage + " (" + orientation(0) + ", " + orientation(1) + ", " + orientation(2) + "), " 
+} 

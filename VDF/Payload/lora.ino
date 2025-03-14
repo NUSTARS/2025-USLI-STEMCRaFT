@@ -1,5 +1,5 @@
 void LoRaSetup(void) {
-  LoRaSerialPort.begin(115200, SWSERIAL_8N1, LORA_RX, LORA_TX, false); // if this is SoftwareSerial
+  LoRaSerialPort.begin(115200, SERIAL_8N1, LORA_RX, LORA_TX);
   //LoRaSerialPort.begin(115200);
   delay(1500);
   LoRaSerialPort.println("AT+BAND=" + lora_band);
