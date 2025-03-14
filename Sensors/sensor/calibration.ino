@@ -131,6 +131,9 @@ bool cal_setup(Adafruit_BNO055& b, int address)
 
     EEPROM.get(eeAddress, bnoID);
 
+    // DELETE LATER
+    // bnoID = 2;
+
     Serial.print("Stored bnoID: "); Serial.println(bnoID);
 
     adafruit_bno055_offsets_t calibrationData;
@@ -173,7 +176,7 @@ bool cal_setup(Adafruit_BNO055& b, int address)
     displaySensorStatus(b);
 
   //  //Crystal must be configured AFTER loading calibration data into BNO055.
-    b.setExtCrystalUse(true);
+    // b.setExtCrystalUse(true);
 
     sensors_event_t event;
     b.getEvent(&event);
@@ -185,7 +188,32 @@ bool cal_setup(Adafruit_BNO055& b, int address)
         Serial.println("Move sensor slightly to calibrate magnetometers");
         while (!b.isFullyCalibrated())
         {
+            // b.getEvent(&event);
+            // delay(BNO055_SAMPLERATE_DELAY_MS);
+
             b.getEvent(&event);
+
+            imu::Vector<3> euler = b.getQuat().toEuler();
+            
+            double x = euler.y() * degToRad;
+            double y = euler.z() * degToRad;
+            double z = euler.x() * degToRad;
+            
+            Serial.print("X: ");
+            Serial.print(x, 4);
+            Serial.print(" Y: ");
+            Serial.print(y, 4);
+            Serial.print(" Z: ");
+            Serial.print(z, 4);
+            Serial.print("\t\t");
+
+            /* Optional: Display calibration status */
+            displayCalStatus(b);
+
+            /* New line for the next sample */
+            Serial.println("");
+
+            /* Wait the specified delay before requesting new data */
             delay(BNO055_SAMPLERATE_DELAY_MS);
         }
     }
@@ -238,6 +266,9 @@ bool cal_setup(Adafruit_BNO055& b, int address)
     b.getSensor(&sensor);
     bnoID = sensor.sensor_id;
 
+    // DELETE LATER
+    // bnoID = 2;
+
     EEPROM.put(eeAddress, bnoID);
 
     eeAddress += sizeof(long);
@@ -257,7 +288,6 @@ bool cal_setup(Adafruit_BNO055& b, int address)
       delay(1000);
     }
     
-    b.setMode(OPERATION_MODE_GYRONLY);
     delay(500);
     return true;
 }
