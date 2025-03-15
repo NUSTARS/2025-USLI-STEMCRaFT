@@ -8,6 +8,7 @@ void LoRaSetup(void) {
   delay(500);
   LoRaSerialPort.println("AT+ADDRESS=" + lora_address);
   delay(1000);
+  lora_helper_millis = 0;
 }
 
 bool receiveStopSignal(void) {

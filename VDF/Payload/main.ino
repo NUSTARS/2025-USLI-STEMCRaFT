@@ -1,34 +1,48 @@
 void setup() {
+  
+  Serial.begin(115200);
   setupBNOs();
-  RFSwitcherSetup();
-  voltageSensingSetup();
+  
   LoRaSetup();
+  
   cal_setup(bno1, 0);
   cal_setup(bno2, 26);
+  
+  RFSwitcherSetup();
+  voltageSensingSetup();
+  
+  
+  debugHelper("Finished Setup", 100);
+  
+  
 }
 
 // main flight loop
 
 void loop() {
+  /*
   switch (state) {
     case WAIT_FOR_LAUNCH:
 
       // if we detect launch
       // then advance state to record launch
       if (detectLaunch()) {
+        debugHelper("Launch Detected!", 400);
         start_of_state_millis = millis();
-        state = RECORD_LAUNCH;
+        state = FLY;
       }
       
       break;
 
+    // ==========================================================================
     case FLY:
-      // read and write IMU data
-
-      
+      if (millis() > start_of_state_millis + (TIME_UNTIL_DETECT_LAUNCH * 1000)) {
+        state = DETECT_LANDING;
+      }
 
       break;
 
+    // ==========================================================================
     case DETECT_LANDING:
 
       // once we have been recording for the
@@ -41,18 +55,18 @@ void loop() {
 
       break;  
 
+    // ==========================================================================
     case TRANSMIT:
 
       // detect which antenna is up and make RF Switch:
-      Eigen::Vector3f gravity = getGravity();
+      gravity = getGravity();
 
       switchAntennaGivenGravity(gravity);
 
-      Eigen::Vector3f orientation = getOrientation();
-      // transmit data
-      float batVoltage = getBatteryVoltage();
-
-      sendAPRSData(batVoltage, );
+      // transmit
+      orientation = getOrientation();
+      batVoltage = getBatteryVoltage();
+      sendAPRSData(batVoltage, orientation);
 
       // if time is up or we receive a LoRa message
       // stop transmitting by advancing the state.
@@ -68,6 +82,7 @@ void loop() {
 
       break;
 
+    // ==========================================================================
     case DONE:
       // Don't do stuff :)
       // maybe buzzer
@@ -78,4 +93,5 @@ void loop() {
 
       break;
   }
+  */
 }

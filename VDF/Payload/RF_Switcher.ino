@@ -1,7 +1,7 @@
 void RFSwitcherSetup(){
+  pinMode(RS_0, OUTPUT);
   pinMode(RS_1, OUTPUT);
   pinMode(RS_2, OUTPUT);
-  pinMode(RS_3, OUTPUT);
 }
 
 // SwitchAntennaGivenGravity : 
@@ -28,25 +28,25 @@ void switchAntennaGivenGravity(Eigen::Vector3f gravity) {
 void switchAntenna(int num) {
   switch (num) {
     case 0:
+      digitalWrite(RS_0, LOW);
+      digitalWrite(RS_1, LOW);
+      digitalWrite(RS_2, LOW);     
+    case 1:
+      digitalWrite(RS_0, HIGH);
       digitalWrite(RS_1, LOW);
       digitalWrite(RS_2, LOW);
-      digitalWrite(RS_3, LOW);     
-    case 1:
-      digitalWrite(RS_1, HIGH);
-      digitalWrite(RS_2, LOW);
-      digitalWrite(RS_3, LOW);
     break;
 
     case 2:
-      digitalWrite(RS_1, LOW);
-      digitalWrite(RS_2, HIGH);
-      digitalWrite(RS_3, LOW);
+      digitalWrite(RS_0, LOW);
+      digitalWrite(RS_1, HIGH);
+      digitalWrite(RS_2, LOW);
     break;
 
     case 3:
+      digitalWrite(RS_0, LOW);
       digitalWrite(RS_1, LOW);
-      digitalWrite(RS_2, LOW);
-      digitalWrite(RS_3, HIGH);
+      digitalWrite(RS_2, HIGH);
     break;
   }
 

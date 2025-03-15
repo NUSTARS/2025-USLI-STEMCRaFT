@@ -33,23 +33,26 @@
 #include <EEPROM.h>
 #include <HardwareSerial.h>
 #include <ArduinoEigenDense.h>
-#include <ESP32Time.h>
+//#include <ESP32Time.h>
 
 // DEFINES ---------------------------------------------------------------
 
 
 // Misc
-#define BUZZER 5
-#define VOLTAGE_SENSING 6
+#define BUZZER 26
+#define VOLTAGE_SENSING 25
 
 // RF Switcher
-#define RS_1 19
-#define RS_2 20
-#define RS_3 21
+#define RS_0 15
+#define RS_1 32
+#define RS_2 14
 
 // IMU
 #define IMU_ADDRESS_A 0x28
 #define IMU_ADDRESS_B 0x29
+
+// ESP32
+#define EEPROM_SIZE 26
 
 
 // VARIABLES TO SET
@@ -59,10 +62,11 @@ Eigen::Vector3f ant1 {1, 1, 1};
 Eigen::Vector3f ant2 {1, 1, 1};
 Eigen::Vector3f ant3 {1, 1, 1};
 
-#define THRESH_ACCEL 30 // in ft/s^2  (PUT TO 50)
+#define ACCEL_THRESHOLD 10 // in ft/s^2  (PUT TO 50)
 #define MAX_FLIGHT_TIME 150 // in s
 #define MAX_TRANSMIT_TIME 300 // in s
 #define MAX_CALIB_TIME  20 // in s 
+#define TIME_UNTIL_DETECT_LAUNCH 40 // in s
 
 #define LAND_DETECT_WAIT_TIME 1 // in s
 #define LAND_DETECT_THRESH 0.5 
@@ -82,7 +86,9 @@ const String lora_networkid = "5";    //enter Lora Network ID
 const String lora_address = "2";      //enter Lora address
 const String lora_RX_address = "1";   //enter Lora RX address (for sending)
 
-ESP32Time rtc(-18000);  // offset in seconds GMT+1
+//ESP32Time rtc(-18000);  // offset in seconds GMT+1
+
+
 
 // structs/enums
 enum LaunchStates {
@@ -98,22 +104,38 @@ enum LaunchStates {
 enum LaunchStates state = WAIT_FOR_LAUNCH;
 
 // move these likely
-sensors_event_t orientationData, angVelocityData, linearAccelData, gravity; 
+//sensors_event_t orientationData, angVelocityData, linearAccelData, gravity; 
 float magnitude;
 
-Adafruit_BNO055 bno1 = Adafruit_BNO055(55, IMU_ADDRESS_A, &Wire);
-Adafruit_BNO055 bno2 = Adafruit_BNO055(55, IMU_ADDRESS_B, &Wire);
+Adafruit_BNO055 bno1 = Adafruit_BNO055(1, 0x28, &Wire);
+Adafruit_BNO055 bno2 = Adafruit_BNO055(2, 0x28, &Wire);
 
 bool calibrated;
+
+float batVoltage;
+
+Eigen::Vector3f orientation;
+Eigen::Vector3f gravity;
+
+unsigned long lora_helper_millis;
+unsigned long start_of_state_millis;
 
 HardwareSerial LoRaSerialPort(1);
 
 // Functions -------------------------------------------------------------------------
 
 // Declaring IMU functions
-int getIMUData(sensors_event_t* orientationData, sensors_event_t* angVelocityData, sensors_event_t* linearAccelData);
-int getIMUGravity(sensors_event_t* gravity);
-void printEvent(sensors_event_t* event);
+
+// old
+
+// IMPORTANT: needs to be called before every getX() call
+void imuDataHelper(void);
+
+// new
+Eigen::Vector3f getOrientation();
+Eigen::Vector3f getGravity();
+Eigen::Vector3f getLinearAcceleration();
+float average(float input1, float input2);
 
 // BNO Functions
 void displayCalStatus(void);
@@ -140,5 +162,22 @@ float getBatteryVoltage(void);
 
 // helpers
 bool detectLaunch();
-bool detectLanding(unsigned long launch_time, Eigen::Vector3f gravity);
-void sendAPRSData(float batVoltage, Eigen::Vector3f orientation, struct tm landingTime);
+bool detectLanding();
+void sendAPRSData(float batVoltage, Eigen::Vector3f orientation);
+
+// calibration
+void displaySensorDetails(Adafruit_BNO055& b);
+void displaySensorStatus(Adafruit_BNO055& b);
+void displayCalStatus(Adafruit_BNO055& b);
+void displaySensorOffsets(const adafruit_bno055_offsets_t &calibData);
+void bunnyPrintOrientation(double x, double y, double z);
+void bunnyPrintCalibration(Adafruit_BNO055& b);
+bool cal_setup(Adafruit_BNO055& b, int address);
+
+// debugging
+void debugHelper(String state, unsigned int toneF);
+
+
+
+
+

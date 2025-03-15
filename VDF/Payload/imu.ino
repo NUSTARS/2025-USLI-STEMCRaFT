@@ -1,17 +1,17 @@
-#include <Wire.h>
-#include <Adafruit_Sensor.h>
-#include <Adafruit_BNO055.h>
-#include <utility/imumaths.h>
+//#include <Wire.h>
+//#include <Adafruit_Sensor.h>
+//#include <Adafruit_BNO055.h>
+//#include <utility/imumaths.h>
 
 // formatting of output vectors
 #include <ArduinoEigen.h>
 
 #include <EEPROM.h>
 
-#define EEPROM_SIZE 26
+
 
 // delay between each samples
-uint16_t BNO055_SAMPLERATE_DELAY_MS = 1000;
+//uint16_t BNO055_SAMPLERATE_DELAY_MS = 1000;
 
 // number of datapoints: orientation, linear, gravity
 const int NUMBER_DATAPOINTS = 3;
@@ -29,8 +29,10 @@ sensors_event_t data[NUMBER_DATAPOINTS];
 sensors_event_t data2[NUMBER_DATAPOINTS];
 
 // initialize each Adafruit
+/*
 Adafruit_BNO055 bno = Adafruit_BNO055(1, 0x28, &Wire);
 Adafruit_BNO055 bno2 = Adafruit_BNO055(2, 0x28, &Wire);
+*/
 
 //
 // calculate averages
@@ -72,39 +74,16 @@ void printAverageEvents(sensors_event_t events[], sensors_event_t events2[]);
 //
 void setupBNOs();
 
-void setup(void)
-{
-  setupBNOs();
 
-  //
-  // TEST FOR STORING EEPROM DATA
-  // 
 
-  // EEPROM.begin(EEPROM_SIZE);
-  // EEPROM.write(0, 10); 
-  // EEPROM.commit();
-
-  // call calibration
-  // calibration_setup(Adafruit_BNO055 &bno, uint8_t &sys, uint8_t &gyro, uint8_t &accel, uint8_t &mag)
-  // cal_setup();
-
-  // delay(1000);
-
-  // int storedValue = EEPROM.read(0);
-
-  // Serial.print("Stored Value: "); Serial.println(storedValue); 
-
-  delay(1000); 
-}
-
-void loop(void)
+void imuDataHelper(void)
 {
   EEPROM.begin(EEPROM_SIZE*2);
 
   // call calibration function for the first bno
   if (!isFirstBNOCalibrated)
   {
-    isFirstBNOCalibrated = cal_setup(bno, 0);
+    isFirstBNOCalibrated = cal_setup(bno1, 0);
   }
 
   // call calibration for the second bno
@@ -113,7 +92,7 @@ void loop(void)
     isSecondBNOCalibrated = cal_setup(bno2, 26);
   }
 
-  bno.setMode(OPERATION_MODE_GYRONLY);
+  bno1.setMode(OPERATION_MODE_GYRONLY);
   bno2.setMode(OPERATION_MODE_GYRONLY);
 
   EEPROM.commit();
@@ -123,9 +102,9 @@ void loop(void)
   // calibration_setup(bno2, data2);
 
   // fill values of data; order of data: orientation, linearAccel, gravity
-  bno.getEvent(&data[0], Adafruit_BNO055::VECTOR_EULER);
-  bno.getEvent(&data[1], Adafruit_BNO055::VECTOR_LINEARACCEL);
-  bno.getEvent(&data[2], Adafruit_BNO055::VECTOR_GRAVITY);
+  bno1.getEvent(&data[0], Adafruit_BNO055::VECTOR_EULER);
+  bno1.getEvent(&data[1], Adafruit_BNO055::VECTOR_LINEARACCEL);
+  bno1.getEvent(&data[2], Adafruit_BNO055::VECTOR_GRAVITY);
 
   // fill values of data2
   bno2.getEvent(&data2[0], Adafruit_BNO055::VECTOR_EULER);
@@ -135,7 +114,8 @@ void loop(void)
   // if the sensors all have 0, must be disconnected
   firstSensorFound = !checkEmpty(data);
   secondSensorFound = !checkEmpty(data2);
-
+  
+  
   if (!firstSensorFound && !secondSensorFound) 
   {
     Serial.println("Both Sensors Disconnected");
@@ -166,6 +146,7 @@ void loop(void)
   }
 
   Serial.println("--");
+  
   delay(BNO055_SAMPLERATE_DELAY_MS);
 }
 
@@ -218,7 +199,7 @@ void setupBNOs()
   while (!Serial) delay(10); 
 
   // start each sensors; if false, not found the sensor
-  firstSensorFound = bno.begin();
+  firstSensorFound = bno1.begin();
   secondSensorFound = bno2.begin();
 
   isFirstBNOCalibrated = false;
