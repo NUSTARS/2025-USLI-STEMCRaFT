@@ -36,8 +36,8 @@ bool    alternateSymbolTable = false ; //false = '/' , true = '\'
 
 char    comment[50] = "LightAPRS 2.0"; // Max 50 char but shorter is better
 bool    FirstTime? = true;
-char    Time[12];
-byte    DataArray[62];
+char    Time[13] = "";
+char    DataArray[63] = "";
 //*****************************************************************************
 
 uint16_t  BeaconWait=50;  //seconds sleep for next beacon. This is optimized value, do not change this if possible.
@@ -136,16 +136,16 @@ void setup() {
 }
 
 void loop() {
-
-if (((readBatt() > BattMin) && GpsFirstFix) || ((readBatt() > GpsMinVolt) && !GpsFirstFix)) {
-      if (DataArray != "") {
-        sendStatus();
-        DataArray = "";
-      }
+  if (((readBatt() > BattMin) && GpsFirstFix) || ((readBatt() > GpsMinVolt) && !GpsFirstFix)) {
+    
+    if (*DataArray != "") {	
+      sendStatus();	   	  
+      strcpy(DataArray, "");
 
       while (readBatt() < BattMin) {
         sleepSeconds(BattWait); 
       }
+   
     }
 
     if (readBatt() > GpsMinVolt) {
@@ -183,7 +183,7 @@ if (((readBatt() > BattMin) && GpsFirstFix) || ((readBatt() > GpsMinVolt) && !Gp
           SerialUSB.flush();
           sleepSeconds(BeaconWait);       
           
-        }else{
+        } else {
           GpsInvalidTime++;
           if(GpsInvalidTime > GpsResetTime){
             GpsOFF;
@@ -203,7 +203,6 @@ if (((readBatt() > BattMin) && GpsFirstFix) || ((readBatt() > GpsMinVolt) && !Gp
   } else {
     sleepSeconds(BattWait);
   }
-}
 }
 
 void gpsStart(){  
@@ -276,8 +275,7 @@ boolean inARISSGeoFence(float tempLat, float tempLong) {
   return ariss;
 }
 
-byte configDra818(char *freq)
-{
+byte configDra818(char *freq) {
   RadioON;
   char ack[3];
   int n;
@@ -453,7 +451,6 @@ void sendLocation() {
 }
 
 void sendStatus() {
-
   SerialUSB.println(F("Status sending..."));
   if (readBatt() > DraHighVolt) RfHiPwr; //DRA Power 1 Watt
   else RfLowPwr; //DRA Power 0.5 Watt
@@ -573,7 +570,7 @@ void freeMem() {
 
 void receiveData(int NumBytes) {
   if (FirstTime?) {
-    strcpy(Time, myGPS.getHour());
+    strcat(Time, myGPS.getHour());
     strcat(Time, ":");
     strcat(Time, myGPS.getMinute());
     strcat(Time, ":")
