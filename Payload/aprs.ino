@@ -41,7 +41,7 @@ char    DataArray[63] = "";
 //*****************************************************************************
 
 uint16_t  BeaconWait=50;  //seconds sleep for next beacon. This is optimized value, do not change this if possible.
-uint16_t  BattWait=60;    //seconds sleep if super capacitors/batteries are below BattMin (important if power source is solar panel) 
+uint16_t  interval=2;    //seconds between transmission attempts
 float     BattMin=3.3;    // min Volts to wake up.
 float     GpsMinVolt=4.5; //min Volts for GPS to wake up. (important if power source is solar panel) 
 float     DraHighVolt=5.0;    // min Volts for radio module (DRA818V) to transmit (TX) 1 Watt, below this transmit 0.5 Watt.
@@ -112,10 +112,14 @@ void setup() {
 
   APRS_init();
   APRS_setCallsign(CallSign, CallNumber);
+
+
+  // 3/15/2025: I think all this stuff is for digipeating - Preston
   APRS_setDestination("APLIGA", 0);
   APRS_setPath1("WIDE1", Wide1);
   APRS_setPath2("WIDE2", Wide2);
   APRS_setPathSize(2);
+  // 
   APRS_useAlternateSymbolTable(alternateSymbolTable);
   APRS_setSymbol(Symbol);
   APRS_setPathSize(pathSize);
@@ -142,9 +146,6 @@ void loop() {
       sendStatus();	   	  
       strcpy(DataArray, "");
 
-      while (readBatt() < BattMin) {
-        sleepSeconds(BattWait); 
-      }
    
     }
 
@@ -201,7 +202,7 @@ void loop() {
     }
     
   } else {
-    sleepSeconds(BattWait);
+    sleepSeconds(interval);
   }
 }
 
