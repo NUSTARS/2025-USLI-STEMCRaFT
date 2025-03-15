@@ -149,41 +149,41 @@ if (readBatt() > BattMin) {
       //DYN_MODEL_PORTABLE is suitable for most situations except airborne vehicles.      
       if(!ublox_high_alt_mode_enabled){setupUBloxDynamicModel(DYN_MODEL_PORTABLE);} // 3/15/2024: If it doesn't work, change to automotive -Omar
       
-      if (myGPS.getPVT()) {
-        gpsDebug();
-        if ( (myGPS.getFixType() != 0) && (myGPS.getSIV() > 3) ) {
-          GpsInvalidTime=0;
-          updatePosition();
-          updateTelemetry();
+      // if (myGPS.getPVT()) {
+      //   gpsDebug();
+      //   if ( (myGPS.getFixType() != 0) && (myGPS.getSIV() > 3) ) {
+      //     GpsInvalidTime=0;
+      //     updatePosition();
+      //     updateTelemetry();
 
-          if(autoPathSizeHighAlt && ((myGPS.getAltitude() * 3.2808399)  / 1000.f) > 3000){
-            //force to use high altitude settings (WIDE2-n)
-            APRS_setPathSize(1);
-            } else {
-            //use default settings  
-            APRS_setPathSize(pathSize);
-          }
+      //     if(autoPathSizeHighAlt && ((myGPS.getAltitude() * 3.2808399)  / 1000.f) > 3000){
+      //       //force to use high altitude settings (WIDE2-n)
+      //       APRS_setPathSize(1);
+      //       } else {
+      //       //use default settings  
+      //       APRS_setPathSize(pathSize);
+      //     }
 
-          sendLocation();
-          freeMem();
-          SerialUSB.flush();
-          sleepSeconds(BeaconWait);       
+      //     sendLocation();
+      //     freeMem();
+      //     SerialUSB.flush();
+      //     sleepSeconds(BeaconWait);       
           
-        }else{
-          GpsInvalidTime++;
-          if(GpsInvalidTime > GpsResetTime){
-            GpsOFF;
-            ublox_high_alt_mode_enabled = false; //gps sleep mode resets high altitude mode.
-            delay(1000);
-            GpsON;
-            GpsInvalidTime=0;     
-          }
-        }
-      } else {
-        #if defined(DEVMODE)
-        SerialUSB.println(F("Not enough sattelites"));
-        #endif
-      }
+      //   }else{
+      //     GpsInvalidTime++;
+      //     if(GpsInvalidTime > GpsResetTime){
+      //       GpsOFF;
+      //       ublox_high_alt_mode_enabled = false; //gps sleep mode resets high altitude mode.
+      //       delay(1000);
+      //       GpsON;
+      //       GpsInvalidTime=0;     
+      //     }
+      //   }
+      // } else {
+      //   #if defined(DEVMODE)
+      //   SerialUSB.println(F("Not enough sattelites"));
+      //   #endif
+      // }
 
     
   } else {
