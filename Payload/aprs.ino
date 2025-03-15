@@ -23,7 +23,7 @@
 #define RadioOFF    digitalWrite(PwDwPin, LOW)
 #define RfHiPwr     digitalWrite(PowerHL, HIGH)
 #define RfLowPwr    digitalWrite(PowerHL, LOW)
-#define SlaveAddr   0x08 // TODO: Find actual slave address
+#define SlaveAddr   4
 
 //#define DEVMODE // Development mode. Uncomment to enable for debugging.
 
@@ -36,7 +36,7 @@ bool    alternateSymbolTable = false ; //false = '/' , true = '\'
 char Frequency[9]="144.3900"; //default frequency. 144.3900 for US, 144.8000 for Europe
 
 char    comment[50] = "LightAPRS 2.0"; // Max 50 char but shorter is better.
-bool    FirstTime? = true;
+bool    FirstTime = true;
 char    Time[13] = "";
 char    DataArray[63] = "";
 //*****************************************************************************
@@ -132,7 +132,7 @@ void loop() {
 
 if (readBatt() > BattMin) {
     
-    if (*DataArray != "") {	
+    if (DataArray != "") {	
       sendStatus();	   	  
       strcpy(DataArray, "");
 
@@ -147,43 +147,43 @@ if (readBatt() > BattMin) {
       //Models for GPS: DYN_MODEL_PORTABLE, DYN_MODEL_STATIONARY, DYN_MODEL_PEDESTRIAN, DYN_MODEL_AUTOMOTIVE, DYN_MODEL_SEA, 
       //DYN_MODEL_AIRBORNE1g, DYN_MODEL_AIRBORNE2g, DYN_MODEL_AIRBORNE4g, DYN_MODEL_WRIST, DYN_MODEL_BIKE
       //DYN_MODEL_PORTABLE is suitable for most situations except airborne vehicles.      
-      if(!ublox_high_alt_mode_enabled){setupUBloxDynamicModel(DYN_MODEL_AIRBORNE4g);} // 3/15/2024: If it doesn't work, change to automotive -Omar
+      if(!ublox_high_alt_mode_enabled){setupUBloxDynamicModel(DYN_MODEL_AIRBORNE4g);}
       
-      // if (myGPS.getPVT()) {
-      //   gpsDebug();
-      //   if ( (myGPS.getFixType() != 0) && (myGPS.getSIV() > 3) ) {
-      //     GpsInvalidTime=0;
-      //     updatePosition();
-      //     updateTelemetry();
+      if (myGPS.getPVT()) {
+        gpsDebug();
+        if ( (myGPS.getFixType() != 0) && (myGPS.getSIV() > 3) ) {
+          GpsInvalidTime=0;
+          updatePosition();
+          updateTelemetry();
 
-      //     if(autoPathSizeHighAlt && ((myGPS.getAltitude() * 3.2808399)  / 1000.f) > 3000){
-      //       //force to use high altitude settings (WIDE2-n)
-      //       APRS_setPathSize(1);
-      //       } else {
-      //       //use default settings  
-      //       APRS_setPathSize(pathSize);
-      //     }
+          if(autoPathSizeHighAlt && ((myGPS.getAltitude() * 3.2808399)  / 1000.f) > 3000){
+            //force to use high altitude settings (WIDE2-n)
+            APRS_setPathSize(1);
+            } else {
+            //use default settings  
+            APRS_setPathSize(pathSize);
+          }
 
-      //     sendLocation();
-      //     freeMem();
-      //     SerialUSB.flush();
-      //     sleepSeconds(BeaconWait);       
+          sendLocation();
+          freeMem();
+          SerialUSB.flush();
+          sleepSeconds(BeaconWait);       
           
-      //   }else{
-      //     GpsInvalidTime++;
-      //     if(GpsInvalidTime > GpsResetTime){
-      //       GpsOFF;
-      //       ublox_high_alt_mode_enabled = false; //gps sleep mode resets high altitude mode.
-      //       delay(1000);
-      //       GpsON;
-      //       GpsInvalidTime=0;     
-      //     }
-      //   }
-      // } else {
-      //   #if defined(DEVMODE)
-      //   SerialUSB.println(F("Not enough sattelites"));
-      //   #endif
-      // }
+        }else{
+          GpsInvalidTime++;
+          if(GpsInvalidTime > GpsResetTime){
+            GpsOFF;
+            ublox_high_alt_mode_enabled = false; //gps sleep mode resets high altitude mode.
+            delay(1000);
+            GpsON;
+            GpsInvalidTime=0;     
+          }
+        }
+      } else {
+        #if defined(DEVMODE)
+        SerialUSB.println(F("Not enough sattelites"));
+        #endif
+      }
 
     
   } else {
@@ -506,25 +506,25 @@ void freeMem() {
 }
 
 void receiveData(int NumBytes) {
-  if (FirstTime?) {
-    strcat(Time, myGPS.getHour());
+  if (FirstTime) {
+    strcat(Time, (const char*)myGPS.getHour());
     strcat(Time, ":");
-    strcat(Time, myGPS.getMinute());
-    strcat(Time, ":")
-    strcat(Time, myGPS.getSecond());
+    strcat(Time, (const char*)myGPS.getMinute());
+    strcat(Time, ":");
+    strcat(Time, (const char*)myGPS.getSecond());
     strcat(Time, ", ");
-    FirstTime? = false;
+    FirstTime = false;
   }
 
-  int Len = Wire.available() + 1
+  int Len = Wire.available() + 1;
   byte ImuData[Len];
 
-  while (int i = 0; 0 < Wire.available(); i++) {
+  for (int i = 0; 0 < Wire.available(); i++) {
     ImuData[i] = Wire.read();
   }
 
   ImuData[Len - 1] = 0;
 
   strcat(DataArray, Time);
-  strcat(DataArray, ImuData);
+  strcat(DataArray, (const char*)ImuData);
 }
