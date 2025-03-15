@@ -6,7 +6,6 @@
 #include <MemoryFree.h>;
 #include <ZeroAPRS.h>                       //https://github.com/hakkican/ZeroAPRS
 #include <SparkFun_Ublox_Arduino_Library.h> //https://github.com/sparkfun/SparkFun_Ublox_Arduino_Library
-#include <GEOFENCE.h>                       // Modified version of https://github.com/TomasTT7/TT7F-Float-Tracker/blob/master/Software/ARM_GEOFENCE.c
 #include <Adafruit_BMP085.h>                //https://github.com/adafruit/Adafruit-BMP085-Library
 
 #define BattPin       A5
@@ -31,19 +30,20 @@
 //******************************  APRS CONFIG **********************************
 char    CallSign[7]="KK7YNC"; //DO NOT FORGET TO CHANGE YOUR CALLSIGN
 int8_t  CallNumber=11;//SSID http://www.aprs.org/aprs11/SSIDs.txt
-char    Symbol='O'; // 'O' for balloon, '>' for car, for more info : http://www.aprs.org/symbols/symbols-new.txt
+char    Symbol='>'; // 'O' for balloon, '>' for car, for more info : http://www.aprs.org/symbols/symbols-new.txt
 bool    alternateSymbolTable = false ; //false = '/' , true = '\'
 
-char    comment[50] = "LightAPRS 2.0"; // Max 50 char but shorter is better
+char Frequency[9]="144.3900"; //default frequency. 144.3900 for US, 144.8000 for Europe
+
+char    comment[50] = "LightAPRS 2.0"; // Max 50 char but shorter is better.
 bool    FirstTime? = true;
 char    Time[13] = "";
 char    DataArray[63] = "";
 //*****************************************************************************
 
-uint16_t  BeaconWait=50;  //seconds sleep for next beacon. This is optimized value, do not change this if possible.
-uint16_t  interval=2;    //seconds between transmission attempts
+uint16_t  BeaconWait=50;  //seconds sleep for next beacon (HF or VHF). This is optimized value, do not change this if possible.
+uint16_t  Interval=2;    //seconds between transmission attempts 
 float     BattMin=3.3;    // min Volts to wake up.
-float     GpsMinVolt=4.5; //min Volts for GPS to wake up. (important if power source is solar panel) 
 float     DraHighVolt=5.0;    // min Volts for radio module (DRA818V) to transmit (TX) 1 Watt, below this transmit 0.5 Watt.
 
 //******************************  APRS SETTINGS *********************************
@@ -60,20 +60,12 @@ NEVER use WIDE1-1 in an airborne path, since this can potentially trigger hundre
  */
 uint8_t pathSize=2; // 2 for WIDE1-N,WIDE2-N ; 1 for WIDE2-N
 boolean autoPathSizeHighAlt = true; //force path to WIDE2-N only for high altitude (airborne) beaconing (over 1.000 meters (3.280 feet)) 
-boolean beaconViaARISS = false; //there are no iGates in some regions (such as North Africa,  Oceans, etc) so try to beacon via ARISS (International Space Station) https://www.amsat.org/amateur-radio-on-the-iss/
 boolean radioSetup = false; //do not change this, temp value
 static char telemetry_buff[100];// telemetry buffer
-uint16_t TxCount = 1; //increase +1 after every APRS transmission
+uint16_t TxCount = 1; //increased +1 after every APRS transmission
 
 //******************************  GPS SETTINGS   *********************************
 int16_t   GpsResetTime=1800; // timeout for reset if GPS is not fixed
-
-// GEOFENCE 
-uint32_t GEOFENCE_APRS_frequency      = 144390000; //temp frequency before geofencing. This variable will be updated based on GPS location.
-uint32_t GEOFENCE_no_tx               = 0;
-boolean arissModEnabled = false; //do not change this, temp value. 
-
-boolean GpsFirstFix=false; //do not change this
 boolean ublox_high_alt_mode_enabled = false; //do not change this
 int16_t GpsInvalidTime=0; //do not change this
 boolean gpsSetup=false; //do not change this.
@@ -112,18 +104,16 @@ void setup() {
 
   APRS_init();
   APRS_setCallsign(CallSign, CallNumber);
-
-
-  // 3/15/2025: I think all this stuff is for digipeating - Preston
   APRS_setDestination("APLIGA", 0);
   APRS_setPath1("WIDE1", Wide1);
   APRS_setPath2("WIDE2", Wide2);
   APRS_setPathSize(2);
-  // 
   APRS_useAlternateSymbolTable(alternateSymbolTable);
   APRS_setSymbol(Symbol);
   APRS_setPathSize(pathSize);
   APRS_setGain(2);
+
+  configDra818(Frequency);
 
   Wire.begin(SlaveAddr);
   Wire.onReceive(receiveData);
@@ -135,39 +125,38 @@ void setup() {
   SerialUSB.print(F("-"));
   SerialUSB.println(CallNumber);
 
-  sleepSeconds(5);
 
 }
 
 void loop() {
-  if (((readBatt() > BattMin) && GpsFirstFix) || ((readBatt() > GpsMinVolt) && !GpsFirstFix)) {
+
+if (readBatt() > BattMin) {
     
     if (*DataArray != "") {	
       sendStatus();	   	  
       strcpy(DataArray, "");
 
+      while (readBatt() < BattMin) {
+        sleepSeconds(Interval); 
+      }
    
     }
-
-    if (readBatt() > GpsMinVolt) {
-      GpsON;
+      
       if(!gpsSetup) {gpsStart();}
-      if(!ublox_high_alt_mode_enabled){setupUBloxDynamicModel();}
-
+      
+      //Models for GPS: DYN_MODEL_PORTABLE, DYN_MODEL_STATIONARY, DYN_MODEL_PEDESTRIAN, DYN_MODEL_AUTOMOTIVE, DYN_MODEL_SEA, 
+      //DYN_MODEL_AIRBORNE1g, DYN_MODEL_AIRBORNE2g, DYN_MODEL_AIRBORNE4g, DYN_MODEL_WRIST, DYN_MODEL_BIKE
+      //DYN_MODEL_PORTABLE is suitable for most situations except airborne vehicles.      
+      if(!ublox_high_alt_mode_enabled){setupUBloxDynamicModel(DYN_MODEL_PORTABLE);} // 3/15/2024: If it doesn't work, change to automotive -Omar
+      
       if (myGPS.getPVT()) {
         gpsDebug();
         if ( (myGPS.getFixType() != 0) && (myGPS.getSIV() > 3) ) {
           GpsInvalidTime=0;
-          GpsFirstFix = true;
-          ublox_high_alt_mode_enabled = false; //gps sleep mode resets high altitude mode.
           updatePosition();
           updateTelemetry();
-          //APRS frequency isn't the same for the whole world. (for pico balloon only)
-          if (!radioSetup || TxCount == 200) {
-            configureFreqbyLocation();
-          }
 
-          if(!arissModEnabled && autoPathSizeHighAlt && ((myGPS.getAltitude() * 3.2808399)  / 1000.f) > 3000){
+          if(autoPathSizeHighAlt && ((myGPS.getAltitude() * 3.2808399)  / 1000.f) > 3000){
             //force to use high altitude settings (WIDE2-n)
             APRS_setPathSize(1);
             } else {
@@ -175,16 +164,12 @@ void loop() {
             APRS_setPathSize(pathSize);
           }
 
-          //in some countries Airborne APRS is not allowed. (for pico balloon only)
-          if (isAirborneAPRSAllowed()) {
-            sendLocation();
-            freeMem();
-          }
-
+          sendLocation();
+          freeMem();
           SerialUSB.flush();
           sleepSeconds(BeaconWait);       
           
-        } else {
+        }else{
           GpsInvalidTime++;
           if(GpsInvalidTime > GpsResetTime){
             GpsOFF;
@@ -199,10 +184,10 @@ void loop() {
         SerialUSB.println(F("Not enough sattelites"));
         #endif
       }
-    }
+
     
   } else {
-    sleepSeconds(interval);
+    sleepSeconds(Interval);
   }
 }
 
@@ -214,7 +199,6 @@ void gpsStart(){
     Wire.begin();
     gpsBegin=myGPS.begin();
     if(gpsBegin)break;
-    GpsOFF;  
     #if defined(DEVMODE)  
     SerialUSB.println(F("Ublox GPS not detected at default I2C address. Will try again"));
     #endif 
@@ -229,54 +213,18 @@ void gpsStart(){
 }
 
 void sleepSeconds(int sec) {
-  if (GpsFirstFix){//sleep gps after first fix
-      GpsOFF;
-      ublox_high_alt_mode_enabled = false;
-    } 
   PttOFF;
   RadioOFF;
 
   SerialUSB.flush();
   for (int i = 0; i < sec; i++) {
-    if (readBatt() < GpsMinVolt){
-      GpsOFF;
-      ublox_high_alt_mode_enabled = false;
-    } 
-    delay(1000);
-    
+    delay(1000);   
   }
 
 }
 
-boolean isAirborneAPRSAllowed() {
-
-  float tempLat = myGPS.getLatitude() / 10000000.f;
-  float tempLong = myGPS.getLongitude() / 10000000.f; 
-
-  GEOFENCE_position(tempLat, tempLong);
-
-  boolean airborne = true;
-
-  if (GEOFENCE_no_tx == 1) {
-    airborne = false;
-  }
-
-  return airborne;
-}
-
-boolean inARISSGeoFence(float tempLat, float tempLong) {
-  boolean ariss = false;
-  //North Africa
-  if(tempLat>0 && tempLat<32 && tempLong>0 && tempLong<32){ariss = true;}
-  //North Pacific
-  if(tempLat>28 && tempLat<50 && tempLong>-180 && tempLong<-130){ariss = true;}
-  //North Atlantic
-  if(tempLat>25 && tempLat<42 && tempLong>-60 && tempLong<-33){ariss = true;} 
- 
-  return ariss;
-}
-
-byte configDra818(char *freq) {
+byte configDra818(char *freq)
+{
   RadioON;
   char ack[3];
   int n;
@@ -305,28 +253,6 @@ byte configDra818(char *freq) {
       SerialUSB.println(F("Frequency update error!!!"));    
     }
   return (ack[0] == 0x30) ? 1 : 0;
-}
-
-void configureFreqbyLocation() {
-
-  float tempLat = myGPS.getLatitude() / 10000000.f;
-  float tempLong = myGPS.getLongitude() / 10000000.f; 
-
-  if(beaconViaARISS && inARISSGeoFence(tempLat, tempLong)) {
-    APRS_setPath1("ARISS", Wide1);
-    APRS_setPath2("WIDE2", Wide2);
-    APRS_setPathSize(2);
-    configDra818("145.8250");
-    arissModEnabled = true;
-  } else {
-    GEOFENCE_position(tempLat,tempLong);  
-    float dividedFreq = GEOFENCE_APRS_frequency / 1000000.f;
-    char aprsFreq_buff[9];
-    dtostrf(dividedFreq, 8, 4, aprsFreq_buff);
-    configDra818(aprsFreq_buff);    
-    arissModEnabled = false;
-  }  
-  radioSetup = true;
 }
 
 void updatePosition() {
@@ -452,13 +378,14 @@ void sendLocation() {
 }
 
 void sendStatus() {
+
   SerialUSB.println(F("Status sending..."));
   if (readBatt() > DraHighVolt) RfHiPwr; //DRA Power 1 Watt
   else RfLowPwr; //DRA Power 0.5 Watt
   RadioON;
   delay(2000);
   PttON;
-  delay(1000);  
+  delay(1000);
   APRS_sendStatus(DataArray);
   delay(10);
   PttOFF;
@@ -522,12 +449,21 @@ void gpsDebug() {
 #endif
 }
 
-void setupUBloxDynamicModel() {
-    // If we are going to change the dynamic platform model, let's do it here.
-    // Possible values are:
-    // PORTABLE, STATIONARY, PEDESTRIAN, AUTOMOTIVE, SEA, AIRBORNE1g, AIRBORNE2g, AIRBORNE4g, WRIST, BIKE
-    // DYN_MODEL_AIRBORNE4g model increases ublox max. altitude limit from 12.000 meters to 50.000 meters. 
-    if (myGPS.setDynamicModel(DYN_MODEL_AIRBORNE4g) == false) // Set the dynamic model to DYN_MODEL_AIRBORNE4g
+void setupUBloxDynamicModel(dynModel newDynamicModel) {
+  // If we are going to change the dynamic platform model, let's do it here.
+  // Possible values are:
+  //DYN_MODEL_PORTABLE //Applications with low acceleration, e.g. portable devices. Suitable for most situations.
+  //DYN_MODEL_STATIONARY //Used in timing applications (antenna must be stationary) or other stationary applications. Velocity restricted to 0 m/s. Zero dynamics assumed.
+  //DYN_MODEL_PEDESTRIAN   //Applications with low acceleration and speed, e.g. how a pedestrian would move. Low acceleration assumed.
+  //DYN_MODEL_AUTOMOTIVE   //Used for applications with equivalent dynamics to those of a passenger car. Low vertical acceleration assumed
+  //DYN_MODEL_SEA        //Recommended for applications at sea, with zero vertical velocity. Zero vertical velocity assumed. Sea level assumed.
+  //DYN_MODEL_AIRBORNE1g   //Airborne <1g acceleration. Used for applications with a higher dynamic range and greater vertical acceleration than a passenger car. No 2D position fixes supported.
+  //DYN_MODEL_AIRBORNE2g   //Airborne <2g acceleration. Recommended for typical airborne environments. No 2D position fixes supported.
+  //DYN_MODEL_AIRBORNE4g   //Airborne <4g acceleration. Only recommended for extremely dynamic environments. No 2D position fixes supported.
+  //DYN_MODEL_WRIST      // Not supported in protocol versions less than 18. Only recommended for wrist worn applications. Receiver will filter out arm motion.
+  //DYN_MODEL_BIKE       // Supported in protocol versions 19.2
+
+    if (myGPS.setDynamicModel(newDynamicModel) == false) // Set the dynamic model to DYN_MODEL_AIRBORNE4g
     {
       #if defined(DEVMODE)
         SerialUSB.println(F("***!!! Warning: setDynamicModel failed !!!***"));
