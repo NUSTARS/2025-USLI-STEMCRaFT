@@ -147,7 +147,7 @@ if (readBatt() > BattMin) {
       //Models for GPS: DYN_MODEL_PORTABLE, DYN_MODEL_STATIONARY, DYN_MODEL_PEDESTRIAN, DYN_MODEL_AUTOMOTIVE, DYN_MODEL_SEA, 
       //DYN_MODEL_AIRBORNE1g, DYN_MODEL_AIRBORNE2g, DYN_MODEL_AIRBORNE4g, DYN_MODEL_WRIST, DYN_MODEL_BIKE
       //DYN_MODEL_PORTABLE is suitable for most situations except airborne vehicles.      
-      if(!ublox_high_alt_mode_enabled){setupUBloxDynamicModel(DYN_MODEL_PORTABLE);} // 3/15/2024: If it doesn't work, change to automotive -Omar
+      if(!ublox_high_alt_mode_enabled){setupUBloxDynamicModel(DYN_MODEL_AIRBORNE4g);} // 3/15/2024: If it doesn't work, change to automotive -Omar
       
       // if (myGPS.getPVT()) {
       //   gpsDebug();
