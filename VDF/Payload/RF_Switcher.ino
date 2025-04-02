@@ -10,15 +10,18 @@ void switchAntennaGivenGravity(Eigen::Vector3f gravity) {
   float dot2 = gravity.dot(ant2);
   float dot3 = gravity.dot(ant3);
 
-  float min_dot = min(dot1, min(dot2, dot3));
+  float min_dot = max(dot1, max(dot2, dot3));
   if (min_dot == dot1) {
-    switchAntenna(1);
+    //switchAntenna(1);
+    debugHelper("antenna1", 220);
   }
   else if (min_dot == dot2) {
-    switchAntenna(2);
+    //switchAntenna(2);
+    debugHelper("antenna2", 600);
   }
   else {
-    switchAntenna(3);
+    //switchAntenna(3);
+    debugHelper("antenna3", 1400);
   }
 }
 

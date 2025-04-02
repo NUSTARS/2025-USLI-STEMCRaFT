@@ -78,25 +78,25 @@ void setupBNOs();
 
 void imuDataHelper(void)
 {
-  EEPROM.begin(EEPROM_SIZE*2);
+  // EEPROM.begin(EEPROM_SIZE*2);
 
-  // call calibration function for the first bno
-  if (!isFirstBNOCalibrated)
-  {
-    isFirstBNOCalibrated = cal_setup(bno1, 0);
-  }
+  // // call calibration function for the first bno
+  // if (!isFirstBNOCalibrated)
+  // {
+  //   isFirstBNOCalibrated = cal_setup(bno1, 0);
+  // }
 
-  // call calibration for the second bno
-  if (!isSecondBNOCalibrated)
-  {
-    isSecondBNOCalibrated = cal_setup(bno2, 26);
-  }
+  // // call calibration for the second bno
+  // if (!isSecondBNOCalibrated)
+  // {
+  //   isSecondBNOCalibrated = cal_setup(bno2, 26);
+  // }
 
-  bno1.setMode(OPERATION_MODE_GYRONLY);
-  bno2.setMode(OPERATION_MODE_GYRONLY);
+  // bno1.setMode(OPERATION_MODE_GYRONLY);
+  // bno2.setMode(OPERATION_MODE_GYRONLY);
 
-  EEPROM.commit();
-  EEPROM.end();
+  // EEPROM.commit();
+  // EEPROM.end();
 
   // // call calibration for second sensor of bno
   // calibration_setup(bno2, data2);
@@ -115,7 +115,7 @@ void imuDataHelper(void)
   firstSensorFound = !checkEmpty(data);
   secondSensorFound = !checkEmpty(data2);
   
-  
+  /*
   if (!firstSensorFound && !secondSensorFound) 
   {
     Serial.println("Both Sensors Disconnected");
@@ -144,10 +144,42 @@ void imuDataHelper(void)
     // printEvents(data);
     // printEvents(data2);
   }
+  */
 
   Serial.println("--");
   
   delay(BNO055_SAMPLERATE_DELAY_MS);
+}
+
+void printSensorData(void) {
+  if (!firstSensorFound && !secondSensorFound) 
+  {
+    Serial.println("Both Sensors Disconnected");
+    while(1);
+  }
+  else if (!firstSensorFound) 
+  {
+    Serial.println("Sensor 1 disconnected; only using sensor two");
+    printEvents(data);
+    printEvents(data2);
+  }
+  else if (!secondSensorFound) 
+  {
+    Serial.println("Sensor 2 disconnected; only using sensor one");
+    printEvents(data);
+    printEvents(data2);
+  } 
+  else 
+  {
+    Serial.println("Both Sensors Connected");
+
+    // print out the averages of each data
+    printAverageEvents(data, data2); 
+
+    // // test if each sensor works
+    // printEvents(data);
+    // printEvents(data2);
+  }
 }
 
 // 
@@ -194,9 +226,12 @@ Eigen::Vector3f getLinearAcceleration()
 //
 void setupBNOs() 
 {
-  Serial.begin(115200);
+  //Serial.begin(115200);
 
   while (!Serial) delay(10); 
+
+  bno1 = Adafruit_BNO055(1, 0x28, &Wire);
+  bno2 = Adafruit_BNO055(2, 0x28, &Wire);
 
   // start each sensors; if false, not found the sensor
   firstSensorFound = bno1.begin();

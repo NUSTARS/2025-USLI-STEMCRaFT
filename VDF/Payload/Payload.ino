@@ -42,6 +42,9 @@
 #define BUZZER 26
 #define VOLTAGE_SENSING 25
 
+#define SDA 22
+#define SCL 20
+
 // RF Switcher
 #define RS_0 15
 #define RS_1 32
@@ -58,21 +61,21 @@
 // VARIABLES TO SET
 
 // General
-Eigen::Vector3f ant1 {1, 1, 1};
-Eigen::Vector3f ant2 {1, 1, 1};
-Eigen::Vector3f ant3 {1, 1, 1};
+Eigen::Vector3f ant1 {-0.2672, 0, -0.9636};
+Eigen::Vector3f ant2 {-0.2672, -0.8345, 0.4818};
+Eigen::Vector3f ant3 {-0.2672, 0.8345, 0.4818};
 
 #define ACCEL_THRESHOLD 10 // in ft/s^2  (PUT TO 50)
 #define MAX_FLIGHT_TIME 150 // in s
 #define MAX_TRANSMIT_TIME 300 // in s
 #define MAX_CALIB_TIME  20 // in s 
-#define TIME_UNTIL_DETECT_LAUNCH 40 // in s
+#define TIME_UNTIL_DETECT_LANDING 5 // in s
 
 #define LAND_DETECT_WAIT_TIME 1 // in s
-#define LAND_DETECT_THRESH 0.5 
+#define LAND_DETECT_THRESH (0.6 * 9.8)
 
 // IMU
-#define BNO055_SAMPLERATE_DELAY_MS (100)
+#define BNO055_SAMPLERATE_DELAY_MS (1000)
 
 
 // Lora
@@ -107,8 +110,8 @@ enum LaunchStates state = WAIT_FOR_LAUNCH;
 //sensors_event_t orientationData, angVelocityData, linearAccelData, gravity; 
 float magnitude;
 
-Adafruit_BNO055 bno1 = Adafruit_BNO055(1, 0x28, &Wire);
-Adafruit_BNO055 bno2 = Adafruit_BNO055(2, 0x28, &Wire);
+Adafruit_BNO055 bno1; 
+Adafruit_BNO055 bno2; 
 
 bool calibrated;
 
@@ -136,6 +139,7 @@ Eigen::Vector3f getOrientation();
 Eigen::Vector3f getGravity();
 Eigen::Vector3f getLinearAcceleration();
 float average(float input1, float input2);
+void printSensorData(void);
 
 // BNO Functions
 void displayCalStatus(void);
