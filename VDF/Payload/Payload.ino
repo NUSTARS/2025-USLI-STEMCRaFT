@@ -50,6 +50,9 @@
 #define RS_1 32
 #define RS_2 14
 
+// Radio
+const int WORKER_ADDR = 0x08;
+
 // IMU
 #define IMU_ADDRESS_A 0x28
 #define IMU_ADDRESS_B 0x29

@@ -43,12 +43,13 @@ void sendAPRSData(float batVoltage, Eigen::Vector3f orientation){
     buf[i] = (uint8_t) cstr[i]; 
   }
 
-  const uint8_t* const_data = (const uint8_t*) buf; 
+  //const uint8_t* const_data = (const uint8_t*) buf; 
 
-  Wire.beginTransmission(4);
+  Wire.beginTransmission(WORKER_ADDR);
 
   // std::string test(cstr);
   Wire.write(buf, size);
+  //Wire.write(65);
   Wire.endTransmission();
 }
 
