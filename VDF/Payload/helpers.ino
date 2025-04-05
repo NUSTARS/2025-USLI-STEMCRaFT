@@ -46,12 +46,12 @@ void sendAPRSData(float batVoltage, Eigen::Vector3f orientation){
 
   //const uint8_t* const_data = (const uint8_t*) buf; 
 
-  I2C_2.beginTransmission(WORKER_ADDR);
+  Wire1.beginTransmission(WORKER_ADDR);
 
   // std::string test(cstr);
-  I2C_2.write(buf, size);
+  Wire1.write(buf, size);
   //Wire.write(65);
-  I2C_2.endTransmission();
+  Wire1.endTransmission();
 }
 
 void debugHelper(String state, unsigned int toneF) {

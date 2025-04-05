@@ -2,8 +2,8 @@ void setup() {
   
   Serial.begin(115200);
   delay(800);
-  Wire.begin(SDA,SCL);
-  I2C_2.begin(SDA2,SCL2);
+  Wire.begin(SDA2,SCL2);
+  Wire1.begin(SDA,SCL,100000);
 
   delay(800);
   setupBNOs();

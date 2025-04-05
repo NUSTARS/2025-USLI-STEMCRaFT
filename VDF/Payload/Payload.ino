@@ -47,7 +47,7 @@
 #define SDA2 14
 #define SCL2 32
 
-TwoWire I2C_2 = TwoWire(2);
+//TwoWire I2C_2 = TwoWire(1);
 
 // RF Switcher
 #define RS_0 15
