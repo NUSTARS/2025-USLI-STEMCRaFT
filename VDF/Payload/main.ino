@@ -69,14 +69,14 @@ void loop() {
 
       // if we detect a landing,
       // advance the state 
-      /*    
+         
       if (detectLanding()) {
         start_of_state_millis = millis();
         lora_helper_millis = start_of_state_millis;
         state = TRANSMIT;
         debugHelper("Transmitting!", 5000);
       }
-      */
+      
       start_of_state_millis = millis();
       helper1 = start_of_state_millis;
       helper_bool = true;
@@ -89,25 +89,32 @@ void loop() {
     case TRANSMIT:
       //printSensorData();
       // detect which antenna is up and make RF Switch:
-      //gravity = getGravity();
+      gravity = getGravity();
 
-      //switchAntennaGivenGravity(gravity);
+      switchAntennaGivenGravity(gravity);
+
+      
+
+      /*
       if (millis() > helper1 + 500) {
         helper1 = millis();
         // Serial.println("hi");
 
         if (helper_bool) {
-          /*
+          
           imuDataHelper();
           orientation = getOrientation();
           batVoltage = getBatteryVoltage();
-          */
+          
         }
         else {
           // sendAPRSData(batVoltage, orientation);
         }
         helper_bool = !helper_bool;
+      
+        
       }
+      */
       
 
       
