@@ -37,6 +37,7 @@
 
 // DEFINES ---------------------------------------------------------------
 
+int scumfuckerynum; // which rf to switch to
 
 // Misc
 #define BUZZER 26

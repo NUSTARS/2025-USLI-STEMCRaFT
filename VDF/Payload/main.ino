@@ -1,3 +1,4 @@
+/*
 void setup() {
   
   Serial.begin(115200);
@@ -9,18 +10,18 @@ void setup() {
   setupBNOs();
   
   LoRaSetup();
-  /*
-  EEPROM.begin(EEPROM_SIZE*2);
 
-  isFirstBNOCalibrated = cal_setup(bno1, 0);
-  isSecondBNOCalibrated = cal_setup(bno2, 26);
+  // EEPROM.begin(EEPROM_SIZE*2);
 
-  bno1.setMode(OPERATION_MODE_GYRONLY);
-  bno2.setMode(OPERATION_MODE_GYRONLY);
+  // isFirstBNOCalibrated = cal_setup(bno1, 0);
+  // isSecondBNOCalibrated = cal_setup(bno2, 26);
 
-  EEPROM.commit();
-  EEPROM.end();
-  */
+  // bno1.setMode(OPERATION_MODE_GYRONLY);
+  // bno2.setMode(OPERATION_MODE_GYRONLY);
+
+  // EEPROM.commit();
+  // EEPROM.end();
+
   RFSwitcherSetup();
   voltageSensingSetup();
   
@@ -63,14 +64,14 @@ void loop() {
 
       // if we detect a landing,
       // advance the state 
-      /*    
-      if (detectLanding()) {
-        start_of_state_millis = millis();
-        lora_helper_millis = start_of_state_millis;
-        state = TRANSMIT;
-        debugHelper("Transmitting!", 5000);
-      }
-      */
+          
+      // if (detectLanding()) {
+        // start_of_state_millis = millis();
+        // lora_helper_millis = start_of_state_millis;
+        // state = TRANSMIT;
+        // debugHelper("Transmitting!", 5000);
+      // }
+      
       start_of_state_millis = millis();
       helper1 = start_of_state_millis;
       helper_bool = true;
@@ -91,11 +92,11 @@ void loop() {
         Serial.println("hi");
 
         if (helper_bool) {
-          /*
-          imuDataHelper();
-          orientation = getOrientation();
-          batVoltage = getBatteryVoltage();
-          */
+          
+          // imuDataHelper();
+          // orientation = getOrientation();
+          // batVoltage = getBatteryVoltage();
+          
         }
         else {
           sendAPRSData(batVoltage, orientation);
@@ -117,15 +118,15 @@ void loop() {
       // if time is up or we receive a LoRa message
       // stop transmitting by advancing the state.
       // Probably only do this every some odd interval.
-      /*
-      if (millis() > start_of_state_millis + MAX_TRANSMIT_TIME * 1000) {
-        state = DONE;
-      }
-      else if (millis() > lora_helper_millis + LORA_READ_INTERVAL * 1000) {
-        lora_helper_millis += LORA_READ_INTERVAL;
-        if (receiveStopSignal()) state = DONE;
-      }
-      */
+      
+      // if (millis() > start_of_state_millis + MAX_TRANSMIT_TIME * 1000) {
+        // state = DONE;
+      // }
+      // else if (millis() > lora_helper_millis + LORA_READ_INTERVAL * 1000) {
+        // lora_helper_millis += LORA_READ_INTERVAL;
+        // if (receiveStopSignal()) state = DONE;
+      // }
+      
       break;
 
     // ==========================================================================
@@ -140,3 +141,4 @@ void loop() {
       break;
   }
 }
+*/
