@@ -44,6 +44,10 @@
 
 #define SDA 22
 #define SCL 20
+#define SDA2 14
+#define SCL2 32
+
+TwoWire I2C_2 = TwoWire(2);
 
 // RF Switcher
 #define RS_0 15
@@ -125,6 +129,8 @@ Eigen::Vector3f gravity;
 
 unsigned long lora_helper_millis;
 unsigned long start_of_state_millis;
+unsigned long helper1;
+bool helper_bool;
 
 HardwareSerial LoRaSerialPort(1);
 

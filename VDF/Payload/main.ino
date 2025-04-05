@@ -3,6 +3,8 @@ void setup() {
   Serial.begin(115200);
   delay(800);
   Wire.begin(SDA,SCL);
+  I2C_2.begin(SDA2,SCL2);
+
   delay(800);
   setupBNOs();
   
@@ -32,7 +34,7 @@ void setup() {
 
 void loop() {
 
-  imuDataHelper();
+  //imuDataHelper();
   
   switch (state) {
     case WAIT_FOR_LAUNCH:
@@ -60,29 +62,57 @@ void loop() {
     case DETECT_LANDING:
 
       // if we detect a landing,
-      // advance the state      
+      // advance the state 
+      /*    
       if (detectLanding()) {
         start_of_state_millis = millis();
         lora_helper_millis = start_of_state_millis;
         state = TRANSMIT;
         debugHelper("Transmitting!", 5000);
       }
+      */
+      start_of_state_millis = millis();
+      helper1 = start_of_state_millis;
+      helper_bool = true;
+      lora_helper_millis = start_of_state_millis;
+      state = TRANSMIT;
 
       break;  
 
     // ==========================================================================
     case TRANSMIT:
-      printSensorData();
-
+      //printSensorData();
       // detect which antenna is up and make RF Switch:
-      gravity = getGravity();
+      //gravity = getGravity();
 
-      switchAntennaGivenGravity(gravity);
+      //switchAntennaGivenGravity(gravity);
+      if (millis() > helper1 + 500) {
+        helper1 = millis();
+        Serial.println("hi");
 
+        if (helper_bool) {
+          /*
+          imuDataHelper();
+          orientation = getOrientation();
+          batVoltage = getBatteryVoltage();
+          */
+        }
+        else {
+          sendAPRSData(batVoltage, orientation);
+        }
+        helper_bool = !helper_bool;
+      }
+      
+
+      
       // transmit
-      //orientation = getOrientation();
-      //batVoltage = getBatteryVoltage();
-      //sendAPRSData(batVoltage, orientation);
+      
+
+      //delay(100);
+
+      
+
+
 
       // if time is up or we receive a LoRa message
       // stop transmitting by advancing the state.
@@ -109,5 +139,4 @@ void loop() {
 
       break;
   }
-  delay(1000);
 }

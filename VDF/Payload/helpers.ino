@@ -7,6 +7,7 @@ bool detectLaunch() {
 }
 
 bool detectLanding() {
+  imuDataHelper();
   Eigen::Vector3f gravity = getGravity();
   Serial.print(gravity(0)/9.81);
   Serial.print(", ");
@@ -45,12 +46,12 @@ void sendAPRSData(float batVoltage, Eigen::Vector3f orientation){
 
   //const uint8_t* const_data = (const uint8_t*) buf; 
 
-  Wire.beginTransmission(WORKER_ADDR);
+  I2C_2.beginTransmission(WORKER_ADDR);
 
   // std::string test(cstr);
-  Wire.write(buf, size);
+  I2C_2.write(buf, size);
   //Wire.write(65);
-  Wire.endTransmission();
+  I2C_2.endTransmission();
 }
 
 void debugHelper(String state, unsigned int toneF) {

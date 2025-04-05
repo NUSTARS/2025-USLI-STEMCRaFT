@@ -148,7 +148,7 @@ void imuDataHelper(void)
 
   Serial.println("--");
   
-  delay(BNO055_SAMPLERATE_DELAY_MS);
+  // delay(BNO055_SAMPLERATE_DELAY_MS);
 }
 
 void printSensorData(void) {
@@ -289,7 +289,7 @@ Eigen::Vector3f getOrientation()
 
   if (!firstSensorFound && !secondSensorFound) // no sensors connected
   {
-    Serial.print("No sensors detected");
+    Serial.print("No sensors detected\n");
   }
   else if (!firstSensorFound) // only second sensor connected
   {
