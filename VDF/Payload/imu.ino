@@ -72,8 +72,6 @@ void printAverageEvents(sensors_event_t events[], sensors_event_t events2[]);
 //
 // setup function for bnos
 //
-void setupBNOs();
-
 
 
 void imuDataHelper(void)
@@ -227,15 +225,21 @@ Eigen::Vector3f getLinearAcceleration()
 void setupBNOs() 
 {
   //Serial.begin(115200);
+  Serial.println("setting up");
+
 
   while (!Serial) delay(10); 
 
   bno1 = Adafruit_BNO055(1, 0x28, &Wire);
-  bno2 = Adafruit_BNO055(2, 0x28, &Wire);
+  //bno2 = Adafruit_BNO055(2, 0x28, &Wire);
 
   // start each sensors; if false, not found the sensor
   firstSensorFound = bno1.begin();
-  secondSensorFound = bno2.begin();
+  if (!firstSensorFound) // no sensors connected
+  {
+  Serial.println("first sensor not found");
+  }
+  //secondSensorFound = bno2.begin();
 
   isFirstBNOCalibrated = false;
   isSecondBNOCalibrated = false;

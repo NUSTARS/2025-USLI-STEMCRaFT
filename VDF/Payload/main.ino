@@ -2,30 +2,36 @@ void setup() {
   
   Serial.begin(115200);
   delay(800);
-  Wire.begin(SDA2,SCL2);
-  Wire1.begin(SDA,SCL,100000);
+  Serial.println("Starting wire setup");
+  Wire.begin(SDA,SCL);
+  // Wire1.begin(SDA,SCL,100000);
 
   delay(800);
+
+  Serial.println("Starting setupBNOs()");
   setupBNOs();
-  
-  LoRaSetup();
-  /*
-  EEPROM.begin(EEPROM_SIZE*2);
+  Serial.println("Finished setupBNOs()");
 
-  isFirstBNOCalibrated = cal_setup(bno1, 0);
-  isSecondBNOCalibrated = cal_setup(bno2, 26);
+  // Serial.println("Starting LoRaSetup()");
+  // LoRaSetup();
+  // Serial.println("Finished LoRaSetup()");
+  // /*
+  // EEPROM.begin(EEPROM_SIZE*2);
 
-  bno1.setMode(OPERATION_MODE_GYRONLY);
-  bno2.setMode(OPERATION_MODE_GYRONLY);
+  // isFirstBNOCalibrated = cal_setup(bno1, 0);
+  // isSecondBNOCalibrated = cal_setup(bno2, 26);
 
-  EEPROM.commit();
-  EEPROM.end();
-  */
-  RFSwitcherSetup();
-  voltageSensingSetup();
+  // bno1.setMode(OPERATION_MODE_GYRONLY);
+  // bno2.setMode(OPERATION_MODE_GYRONLY);
+
+  // EEPROM.commit();
+  // EEPROM.end();
+  // */
+  // RFSwitcherSetup();
+  // voltageSensingSetup();
   
   
-  debugHelper("Finished Setup", 100);
+  // debugHelper("Finished Setup", 100);
   
   state = DETECT_LANDING;
 }
@@ -88,7 +94,7 @@ void loop() {
       //switchAntennaGivenGravity(gravity);
       if (millis() > helper1 + 500) {
         helper1 = millis();
-        Serial.println("hi");
+        // Serial.println("hi");
 
         if (helper_bool) {
           /*
@@ -98,7 +104,7 @@ void loop() {
           */
         }
         else {
-          sendAPRSData(batVoltage, orientation);
+          // sendAPRSData(batVoltage, orientation);
         }
         helper_bool = !helper_bool;
       }

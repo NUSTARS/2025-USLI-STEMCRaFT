@@ -36,8 +36,8 @@ void sendAPRSData(float batVoltage, Eigen::Vector3f orientation){
   size_t size = sizeof(cstr) / sizeof(char);
   uint8_t buf[size];
 
-  Serial.println(cstr);
-  Serial.println(size);
+  // Serial.println(cstr);
+  // Serial.println(size);
 
   for (int i = 0; i < size; i++) 
   {
