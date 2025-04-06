@@ -6,7 +6,8 @@
 #include <MemoryFree.h>;
 #include <ZeroAPRS.h>                       //https://github.com/hakkican/ZeroAPRS
 #include <SparkFun_Ublox_Arduino_Library.h> //https://github.com/sparkfun/SparkFun_Ublox_Arduino_Library
-#include <Adafruit_BMP085.h>                //https://github.com/adafruit/Adafruit-BMP085-Library
+#include <Adafruit_BNO055.h>
+#include <Adafruit_Sensor.h>
 
 #define BattPin       A5
 #define GpsPwr        7
@@ -23,7 +24,6 @@
 #define RadioOFF    digitalWrite(PwDwPin, LOW)
 #define RfHiPwr     digitalWrite(PowerHL, HIGH)
 #define RfLowPwr    digitalWrite(PowerHL, LOW)
-#define SlaveAddr   4
 
 //#define DEVMODE // Development mode. Uncomment to enable for debugging.
 
@@ -36,9 +36,10 @@ bool    alternateSymbolTable = false ; //false = '/' , true = '\'
 char Frequency[9]="144.3900"; //default frequency. 144.3900 for US, 144.8000 for Europe
 
 char    comment[50] = "LightAPRS 2.0"; // Max 50 char but shorter is better.
-bool    FirstTime = true;
-char    Time[13] = "";
-char    DataArray[63] = "";
+// bool    FirstTime = true;
+// char    Time[13] = "";
+char    DataArray[63];
+
 //*****************************************************************************
 
 uint16_t  BeaconWait=50;  //seconds sleep for next beacon (HF or VHF). This is optimized value, do not change this if possible.
@@ -73,7 +74,43 @@ boolean gpsSetup=false; //do not change this.
 //********************************************************************************
 
 SFE_UBLOX_GPS myGPS;
-Adafruit_BMP085 bmp;
+// Adafruit_BMP085 bmp;
+
+
+void receiveData(int NumBytes) {
+  // if (FirstTime) {
+  //   strcat(Time, (const char*) myGPS.getHour());
+  //   strcat(Time, ":");
+  //   strcat(Time, (const char*) myGPS.getMinute());
+  //   strcat(Time, ":");
+  //   strcat(Time, (const char*) myGPS.getSecond());
+  //   FirstTime = false;
+  // }
+
+  SerialUSB.println(F("Inside Handler"));
+
+  int i = 0;
+  char var;
+
+  while (Wire.available()) {
+    var = Wire.read();
+
+    if (var == 0) {
+      break;
+    }
+
+    DataArray[i] = var;
+    i++;
+  }
+
+  strcat(DataArray, Time);
+
+  if (DataArray[0] != '\0') {
+    SerialUSB.println(DataArray);
+    sendStatus();
+  }
+  DataArray[0] = '\0';
+}
 
 void setup() {
   // While the energy rises slowly with the solar panel, 
@@ -90,7 +127,7 @@ void setup() {
   RadioOFF; 
   RfLowPwr;
 
-  SerialUSB.begin(115200);
+  SerialUSB.begin(9600);
   // Wait up to 5 seconds for serial to be opened, to allow catching
   // startup messages on native USB boards (that do not reset when
   // serial is opened).
@@ -115,9 +152,8 @@ void setup() {
 
   configDra818(Frequency);
 
-  Wire.begin(SlaveAddr);
+  Wire.begin(0x08);
   Wire.onReceive(receiveData);
-  bmp.begin();
 
   SerialUSB.println(F(""));
   SerialUSB.print(F("APRS (VHF) CallSign: "));
@@ -125,70 +161,77 @@ void setup() {
   SerialUSB.print(F("-"));
   SerialUSB.println(CallNumber);
 
-
 }
 
 void loop() {
+  // sendStatus();
+  // SerialUSB.println(F("Loop"));
+  
+  // if (readBatt() > BattMin) {
 
-if (readBatt() > BattMin) {
+  //   SerialUSB.println(F("Inside first If"));
     
-    if (DataArray != "") {	
-      sendStatus();	   	  
-      strcpy(DataArray, "");
+  //   if (DataArray != "") {	
+  //     SerialUSB.println(DataArray);	   	  
+  //     strcpy(DataArray, "");
 
-      while (readBatt() < BattMin) {
-        sleepSeconds(Interval); 
-      }
+  //     while (readBatt() < BattMin) {
+  //       sleepSeconds(Interval); 
+  //     }
    
-    }
+  //   } 
       
-      if(!gpsSetup) {gpsStart();}
+  //     // if(!gpsSetup) 
+  //     // {
+  //     //   SerialUSB.println(F("Inside GPS"));
+  //     //   gpsStart();
+  //     // }
       
-      //Models for GPS: DYN_MODEL_PORTABLE, DYN_MODEL_STATIONARY, DYN_MODEL_PEDESTRIAN, DYN_MODEL_AUTOMOTIVE, DYN_MODEL_SEA, 
-      //DYN_MODEL_AIRBORNE1g, DYN_MODEL_AIRBORNE2g, DYN_MODEL_AIRBORNE4g, DYN_MODEL_WRIST, DYN_MODEL_BIKE
-      //DYN_MODEL_PORTABLE is suitable for most situations except airborne vehicles.      
-      if(!ublox_high_alt_mode_enabled){setupUBloxDynamicModel(DYN_MODEL_AIRBORNE4g);}
+  //     // Models for GPS: DYN_MODEL_PORTABLE, DYN_MODEL_STATIONARY, DYN_MODEL_PEDESTRIAN, DYN_MODEL_AUTOMOTIVE, DYN_MODEL_SEA, 
+  //     // DYN_MODEL_AIRBORNE1g, DYN_MODEL_AIRBORNE2g, DYN_MODEL_AIRBORNE4g, DYN_MODEL_WRIST, DYN_MODEL_BIKE
+  //     // DYN_MODEL_PORTABLE is suitable for most situations except airborne vehicles.      
+  //     if(!ublox_high_alt_mode_enabled){setupUBloxDynamicModel(DYN_MODEL_AIRBORNE4g);}
       
-      if (myGPS.getPVT()) {
-        gpsDebug();
-        if ( (myGPS.getFixType() != 0) && (myGPS.getSIV() > 3) ) {
-          GpsInvalidTime=0;
-          updatePosition();
-          updateTelemetry();
+  //     if (myGPS.getPVT()) {
+  //       gpsDebug();
+  //       if ( (myGPS.getFixType() != 0) && (myGPS.getSIV() > 3) ) {
+  //         GpsInvalidTime=0;
+  //         updatePosition();
+  //         updateTelemetry();
 
-          if(autoPathSizeHighAlt && ((myGPS.getAltitude() * 3.2808399)  / 1000.f) > 3000){
-            //force to use high altitude settings (WIDE2-n)
-            APRS_setPathSize(1);
-            } else {
-            //use default settings  
-            APRS_setPathSize(pathSize);
-          }
+  //         if(autoPathSizeHighAlt && ((myGPS.getAltitude() * 3.2808399)  / 1000.f) > 3000){
+  //           //force to use high altitude settings (WIDE2-n)
+  //           APRS_setPathSize(1);
+  //           } else {
+  //           //use default settings  
+  //           APRS_setPathSize(pathSize);
+  //         }
 
-          sendLocation();
-          freeMem();
-          SerialUSB.flush();
-          sleepSeconds(BeaconWait);       
+  //         sendLocation();
+  //         freeMem();
+  //         SerialUSB.flush();
+  //         sleepSeconds(BeaconWait);       
           
-        }else{
-          GpsInvalidTime++;
-          if(GpsInvalidTime > GpsResetTime){
-            GpsOFF;
-            ublox_high_alt_mode_enabled = false; //gps sleep mode resets high altitude mode.
-            delay(1000);
-            GpsON;
-            GpsInvalidTime=0;     
-          }
-        }
-      } else {
-        #if defined(DEVMODE)
-        SerialUSB.println(F("Not enough sattelites"));
-        #endif
-      }
+  //       }else{
+  //         GpsInvalidTime++;
+  //         if(GpsInvalidTime > GpsResetTime){
+  //           GpsOFF;
+  //           ublox_high_alt_mode_enabled = false; //gps sleep mode resets high altitude mode.
+            
+  //           GpsON;
+  //           GpsInvalidTime=0;     
+  //         }
+  //       }
+  //     } else {
+  //       #if defined(DEVMODE)
+  //       SerialUSB.println(F("Not enough sattelites"));
+  //       #endif
+  //     }
 
     
-  } else {
-    sleepSeconds(Interval);
-  }
+  // } else {
+  //   sleepSeconds(Interval);
+  // }
 }
 
 void gpsStart(){  
@@ -196,7 +239,6 @@ void gpsStart(){
   while(!gpsBegin){
     GpsON;
     delay(1000);
-    Wire.begin();
     gpsBegin=myGPS.begin();
     if(gpsBegin)break;
     #if defined(DEVMODE)  
@@ -338,11 +380,11 @@ void updateTelemetry() {
   telemetry_buff[20] = 'T';
   telemetry_buff[21] = 'x';
   telemetry_buff[22] = 'C';
-  telemetry_buff[23] = ' '; float tempC = bmp.readTemperature();
-  dtostrf(tempC, 6, 2, telemetry_buff + 24);
+  // telemetry_buff[23] = ' '; float tempC = bmp.readTemperature();
+  // dtostrf(tempC, 6, 2, telemetry_buff + 24);
   telemetry_buff[30] = 'C';
-  telemetry_buff[31] = ' '; float pressure = bmp.readPressure() / 100.0; //Pa to hPa
-  dtostrf(pressure, 7, 2, telemetry_buff + 32);
+  // telemetry_buff[31] = ' '; float pressure = bmp.readPressure() / 100.0; //Pa to hPa
+  // dtostrf(pressure, 7, 2, telemetry_buff + 32);
   telemetry_buff[39] = 'h';
   telemetry_buff[40] = 'P';
   telemetry_buff[41] = 'a';
@@ -437,13 +479,13 @@ void gpsDebug() {
     SerialUSB.print(":");
     SerialUSB.print(myGPS.getSecond());
     
-    SerialUSB.print(" Temp: ");
-    SerialUSB.print(bmp.readTemperature());
-    SerialUSB.print(" C");
+    // SerialUSB.print(" Temp: ");
+    // SerialUSB.print(bmp.readTemperature());
+    // SerialUSB.print(" C");
     
-    SerialUSB.print(" Press: ");    
-    SerialUSB.print(bmp.readPressure() / 100.0);
-    SerialUSB.print(" hPa");
+    // SerialUSB.print(" Press: ");    
+    // SerialUSB.print(bmp.readPressure() / 100.0);
+    // SerialUSB.print(" hPa");
     SerialUSB.println();  
 
 #endif
@@ -503,28 +545,4 @@ void freeMem() {
   SerialUSB.print(F("Free RAM: ")); SerialUSB.print(freeMemory(), DEC); SerialUSB.println(F(" byte"));
 #endif
 
-}
-
-void receiveData(int NumBytes) {
-  if (FirstTime) {
-    strcat(Time, (const char*)myGPS.getHour());
-    strcat(Time, ":");
-    strcat(Time, (const char*)myGPS.getMinute());
-    strcat(Time, ":");
-    strcat(Time, (const char*)myGPS.getSecond());
-    strcat(Time, ", ");
-    FirstTime = false;
-  }
-
-  int Len = Wire.available() + 1;
-  byte ImuData[Len];
-
-  for (int i = 0; 0 < Wire.available(); i++) {
-    ImuData[i] = Wire.read();
-  }
-
-  ImuData[Len - 1] = 0;
-
-  strcat(DataArray, Time);
-  strcat(DataArray, (const char*)ImuData);
 }
