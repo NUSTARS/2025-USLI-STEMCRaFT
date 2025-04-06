@@ -1,4 +1,4 @@
-
+/*
 void setup() {
   RFSwitcherSetup();
   scumfuckerynum = 0;
@@ -9,3 +9,4 @@ void loop() {
   switchAntenna(time_val);
   
 }
+*/

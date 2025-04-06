@@ -37,7 +37,6 @@
 
 // DEFINES ---------------------------------------------------------------
 
-//int scumfuckerynum; // which rf to switch to
 
 // Misc
 #define BUZZER 26
@@ -47,8 +46,6 @@
 #define SCL 20
 #define SDA2 14
 #define SCL2 32
-
-//TwoWire I2C_2 = TwoWire(1);
 
 // RF Switcher
 #define RS_0 15
@@ -133,7 +130,8 @@ unsigned long start_of_state_millis;
 unsigned long helper1;
 bool helper_bool;
 
-HardwareSerial LoRaSerialPort(1);
+//HardwareSerial LoRaSerialPort(1);
+#define LoRaSerialPort Serial1
 
 // Functions -------------------------------------------------------------------------
 
