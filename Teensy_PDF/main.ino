@@ -29,7 +29,7 @@ void setup() {
   
   debugHelper("Finished Setup", 100);
   
-  state = DETECT_LANDING;
+  state = WAIT_FOR_LAUNCH;
 }
 
 // main flight loop
@@ -66,18 +66,16 @@ void loop() {
       // if we detect a landing,
       // advance the state 
           
-      // if (detectLanding()) {
-        // start_of_state_millis = millis();
-        // lora_helper_millis = start_of_state_millis;
-        // state = TRANSMIT;
-        // debugHelper("Transmitting!", 5000);
-      // }
+      if (detectLanding()) {
+        start_of_state_millis = millis();
+        helper1 = start_of_state_millis;
+        helper_bool = true;
+        lora_helper_millis = start_of_state_millis;
+        state = TRANSMIT;
+        debugHelper("Transmitting!", 5000);
+      }
       
-      start_of_state_millis = millis();
-      helper1 = start_of_state_millis;
-      helper_bool = true;
-      lora_helper_millis = start_of_state_millis;
-      state = TRANSMIT;
+      
 
       break;  
 
@@ -85,10 +83,10 @@ void loop() {
     case TRANSMIT:
       //printSensorData();
       // detect which antenna is up and make RF Switch:
-      gravity = getGravity();
+      
 
-      //switchAntennaGivenGravity(gravity);
-      if (millis() > helper1 + 500) {
+      //
+      if (millis() > helper1 + 1000) {
         helper1 = millis();
         Serial.println("hi");
 
@@ -97,7 +95,8 @@ void loop() {
           imuDataHelper();
           orientation = getOrientation();
           batVoltage = getBatteryVoltage();
-          
+          gravity = getGravity();
+          switchAntennaGivenGravity(gravity);
         }
         else {
           sendAPRSData(batVoltage, orientation);
@@ -112,17 +111,14 @@ void loop() {
 
       //delay(100);
 
-      
-
-
-
       // if time is up or we receive a LoRa message
       // stop transmitting by advancing the state.
       // Probably only do this every some odd interval.
       
-      // if (millis() > start_of_state_millis + MAX_TRANSMIT_TIME * 1000) {
-        // state = DONE;
-      // }
+      if (millis() > start_of_state_millis + MAX_TRANSMIT_TIME * 1000) {
+        state = DONE;
+        Serial.println("DONE!!!!");
+      }
       // else if (millis() > lora_helper_millis + LORA_READ_INTERVAL * 1000) {
         // lora_helper_millis += LORA_READ_INTERVAL;
         // if (receiveStopSignal()) state = DONE;

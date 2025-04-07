@@ -44,8 +44,8 @@
 
 #define SDA 22
 #define SCL 20
-#define SDA2 14
-#define SCL2 32
+//#define SDA2 14
+//#define SCL2 32
 
 // RF Switcher
 #define RS_0 15
@@ -72,7 +72,7 @@ Eigen::Vector3f ant3 {-0.2672, 0.8345, 0.4818};
 
 #define ACCEL_THRESHOLD 10 // in ft/s^2  (PUT TO 50)
 #define MAX_FLIGHT_TIME 150 // in s
-#define MAX_TRANSMIT_TIME 300 // in s
+#define MAX_TRANSMIT_TIME 60 // in s (PUT TO 300)
 #define MAX_CALIB_TIME  20 // in s 
 #define TIME_UNTIL_DETECT_LANDING 5 // in s
 
