@@ -3,6 +3,8 @@ bool detectLaunch() {
   Eigen::Vector3f accel = (Eigen::Vector3f) getLinearAcceleration();
   Serial.print("Accel: ");
   Serial.println(accel.norm());
+  // TODO: Switch to ft/s^2
+  //if (accel.norm() > ERROR_ACCEL_THRESHOLD) return false;
   return accel.norm() > ACCEL_THRESHOLD; 
 }
 

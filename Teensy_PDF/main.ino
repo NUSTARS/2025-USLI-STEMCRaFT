@@ -84,9 +84,9 @@ void loop() {
       //printSensorData();
       // detect which antenna is up and make RF Switch:
       
-
+      
       //
-      if (millis() > helper1 + 1000) {
+      if (millis() > helper1 + 5000) {
         helper1 = millis();
         Serial.println("hi");
 
@@ -99,11 +99,13 @@ void loop() {
           switchAntennaGivenGravity(gravity);
         }
         else {
-          sendAPRSData(batVoltage, orientation);
+          if (gravity(0) != -1000000) {
+            sendAPRSData(batVoltage, orientation);
+          }
         }
         helper_bool = !helper_bool;
       }
-      
+    
 
       
       // transmit
@@ -115,14 +117,15 @@ void loop() {
       // stop transmitting by advancing the state.
       // Probably only do this every some odd interval.
       
-      if (millis() > start_of_state_millis + MAX_TRANSMIT_TIME * 1000) {
-        state = DONE;
-        Serial.println("DONE!!!!");
-      }
-      // else if (millis() > lora_helper_millis + LORA_READ_INTERVAL * 1000) {
-        // lora_helper_millis += LORA_READ_INTERVAL;
-        // if (receiveStopSignal()) state = DONE;
+      // if (millis() > start_of_state_millis + MAX_TRANSMIT_TIME * 1000) {
+        // state = DONE;
+        // Serial.println("DONE!!!!");
       // }
+      // else 
+      if (millis() > lora_helper_millis + LORA_READ_INTERVAL * 1000) {
+        lora_helper_millis += LORA_READ_INTERVAL * 1000;
+        if (receiveStopSignal()) state = DONE;
+      }
       
       break;
 
