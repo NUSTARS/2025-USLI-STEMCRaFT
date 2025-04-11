@@ -71,7 +71,9 @@ Eigen::Vector3f ant1 {-0.2672, 0, -0.9636};
 Eigen::Vector3f ant2 {-0.2672, -0.8345, 0.4818};
 Eigen::Vector3f ant3 {-0.2672, 0.8345, 0.4818};
 
-#define ACCEL_THRESHOLD 10 // in ft/s^2  (PUT TO 50)
+#define ACCEL_THRESHOLD 10 // in ft/s^2  (PUT TO 60)
+#define ERROR_ACCEL_THRESHOLD 400
+#define MPSS_TO_FTPSS 3.28084 // ft/s^2 to m/s^2
 #define MAX_FLIGHT_TIME 150 // in s
 #define MAX_TRANSMIT_TIME 60 // in s (PUT TO 300)
 #define MAX_CALIB_TIME  20 // in s 

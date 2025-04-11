@@ -1,10 +1,10 @@
 bool detectLaunch() {
   imuDataHelper();
-  Eigen::Vector3f accel = (Eigen::Vector3f) getLinearAcceleration();
+  Eigen::Vector3f accel = MPSS_TO_FTPSS * (Eigen::Vector3f) getLinearAcceleration();
   // Serial.print("Accel: ");
   // Serial.println(accel.norm());
   // TODO: Switch to ft/s^2
-  //if (accel.norm() > ERROR_ACCEL_THRESHOLD) return false;
+  if (accel.norm()  > ERROR_ACCEL_THRESHOLD) return false;
   return accel.norm() > ACCEL_THRESHOLD; 
 }
 
@@ -33,7 +33,7 @@ void sendAPRSData(float batVoltage, Eigen::Vector3f orientation, String time){
   
   //std::string out = String(batVoltage) + " (" + String(orientation(0)) + ", " + String(orientation(1)) + ", " + String(orientation(2)) + "), ";
   char cstr[62];
-  std::sprintf(cstr, "KK7YNC - Vbat: %.2f, Y: %.2f, P: %.2f, R: %.2f, Q%s", batVoltage, orientation(0), orientation(1), orientation(2), time.c_str());
+  std::sprintf(cstr, "KK7YNC,Vbat:%.2f,Y:%.2f,P:%.2f,R:%.2f,T:%s,KK7YNC", batVoltage, orientation(0), orientation(1), orientation(2), time.c_str());
   
   size_t size = sizeof(cstr) / sizeof(char);
   uint8_t buf[size];

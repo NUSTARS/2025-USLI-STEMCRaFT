@@ -138,11 +138,12 @@ void loop() {
       // if time is up or we receive a LoRa message
       // stop transmitting by advancing the state.
       // Probably only do this every some odd interval.
-      
-      // if (millis() > start_of_state_millis + MAX_TRANSMIT_TIME * 1000) {
-        // state = DONE;
-        // Serial.println("DONE!!!!");
-      // }
+      /*
+      if (millis() > start_of_state_millis + MAX_TRANSMIT_TIME * 1000) {
+        state = DONE;
+        Serial.println("DONE!!!!");
+      }
+      */
       // else 
       if (millis() > lora_helper_millis + LORA_READ_INTERVAL * 1000) {
         lora_helper_millis += LORA_READ_INTERVAL * 1000;
