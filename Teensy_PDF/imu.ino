@@ -146,7 +146,7 @@ void imuDataHelper(void)
   }
   */
 
-  Serial.println("--");
+  // Serial.println("--");
   
   // delay(BNO055_SAMPLERATE_DELAY_MS);
 }
@@ -228,7 +228,7 @@ void setupBNOs()
 {
   //Serial.begin(115200);
 
-  while (!Serial) delay(10); 
+  // while (!Serial) delay(10); 
 
   bno1 = Adafruit_BNO055(1, 0x28, &Wire);
   bno2 = Adafruit_BNO055(2, 0x28, &Wire);

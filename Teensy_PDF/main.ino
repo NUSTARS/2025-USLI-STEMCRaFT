@@ -1,6 +1,4 @@
-
 void setup() {
-  
   Serial.begin(115200);
   delay(800);
   Wire.begin();
@@ -11,6 +9,9 @@ void setup() {
   setupBNOs();
   
   LoRaSetup();
+
+
+  
 
   // EEPROM.begin(EEPROM_SIZE*2);
 
@@ -25,7 +26,7 @@ void setup() {
 
   RFSwitcherSetup();
   voltageSensingSetup();
-  
+  lora_sent_time = 0;
   
   debugHelper("Finished Setup", 100);
   
@@ -40,6 +41,10 @@ void loop() {
   
   switch (state) {
     case WAIT_FOR_LAUNCH:
+
+      if (lora_sent_time == 0) {
+        lora_sent_time = receiveTime();
+      }
 
       // if we detect launch
       // then advance state to record launch
@@ -72,6 +77,22 @@ void loop() {
         helper_bool = true;
         lora_helper_millis = start_of_state_millis;
         state = TRANSMIT;
+
+
+        // ADDING CODE TO CALCULATE TIME 
+        landing_time = lora_sent_time + millis() - recieved_time;
+
+        // CONVERT LANDING TIME TO ACTUAL MILITARY TIME 
+        unsigned long hour = landing_time / 3600000;
+        unsigned long min = (int) ((landing_time % 3600000) / 60000);
+        unsigned long seconds = (int) (((landing_time % 3600000) / 60000.0 - min) * 60);
+
+        Serial.println(hour);
+        Serial.println(min);
+        Serial.println(seconds);
+
+        transmitted_landing_time = String(hour) + ":" + String(min) + ":" + String(seconds);
+
         debugHelper("Transmitting!", 5000);
       }
       
@@ -100,7 +121,8 @@ void loop() {
         }
         else {
           if (gravity(0) != -1000000) {
-            sendAPRSData(batVoltage, orientation);
+            // ADD IN VARIABLE FOR TIME 
+            sendAPRSData(batVoltage, orientation, transmitted_landing_time);
           }
         }
         helper_bool = !helper_bool;

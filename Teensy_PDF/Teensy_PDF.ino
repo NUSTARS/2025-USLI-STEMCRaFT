@@ -39,18 +39,19 @@
 
 
 // Misc
-#define BUZZER 26
-#define VOLTAGE_SENSING 25
-
+#define BUZZER 3
+#define LED_PIN 2
+#define VOLTAGE_SENSING A6
+#define CAMERA_CONTROL 7
 #define SDA 22
 #define SCL 20
 //#define SDA2 14
 //#define SCL2 32
 
 // RF Switcher
-#define RS_0 15
-#define RS_1 32
-#define RS_2 14
+#define RS_0 6
+#define RS_1 5
+#define RS_2 4
 
 // Radio
 const int WORKER_ADDR = 0x08;
@@ -85,17 +86,17 @@ Eigen::Vector3f ant3 {-0.2672, 0.8345, 0.4818};
 
 // Lora
 #define LORA_STOP_CHAR 'S'
+#define LORA_TIME_CHAR 'Q'
 #define LORA_TX 14
 #define LORA_RX 15
 #define LORA_READ_INTERVAL 10 //FIXME
 
-const String lora_band = "865000000"; //enter band as per your country
+const String lora_band = "904000000"; //enter band as per your country
 const String lora_networkid = "5";    //enter Lora Network ID
 const String lora_address = "2";      //enter Lora address
 const String lora_RX_address = "1";   //enter Lora RX address (for sending)
 
 //ESP32Time rtc(-18000);  // offset in seconds GMT+1
-
 
 
 // structs/enums
@@ -127,7 +128,15 @@ Eigen::Vector3f gravity;
 
 unsigned long lora_helper_millis;
 unsigned long start_of_state_millis;
+unsigned long lora_sent_time;
+
 unsigned long helper1;
+
+unsigned long recieved_time;
+unsigned long landing_time;
+
+String transmitted_landing_time;
+
 bool helper_bool;
 
 //HardwareSerial LoRaSerialPort(1);
@@ -175,7 +184,7 @@ float getBatteryVoltage(void);
 // helpers
 bool detectLaunch();
 bool detectLanding();
-void sendAPRSData(float batVoltage, Eigen::Vector3f orientation);
+void sendAPRSData(float batVoltage, Eigen::Vector3f orientation, String time);
 
 // calibration
 void displaySensorDetails(Adafruit_BNO055& b);
@@ -190,6 +199,6 @@ bool cal_setup(Adafruit_BNO055& b, int address);
 void debugHelper(String state, unsigned int toneF);
 
 
-
+unsigned long receiveTime(void);
 
 
