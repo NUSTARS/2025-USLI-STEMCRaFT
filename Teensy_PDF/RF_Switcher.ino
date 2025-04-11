@@ -36,6 +36,7 @@ void switchAntennaGivenGravity(Eigen::Vector3f gravity) {
 // takes in a number (1-3) and switches the
 // RF switcher to the associated antenna
 void switchAntenna(int num) {
+  
   switch (num) {
     case 0:
       digitalWrite(RS_0, LOW);
@@ -64,5 +65,6 @@ void switchAntenna(int num) {
       digitalWrite(RS_2, HIGH);
     break;
   }
+  
 
 }

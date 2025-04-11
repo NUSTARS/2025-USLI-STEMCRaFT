@@ -117,7 +117,7 @@ void loop() {
           orientation = getOrientation();
           batVoltage = getBatteryVoltage();
           gravity = getGravity();
-          switchAntennaGivenGravity(gravity);
+          //switchAntennaGivenGravity(gravity);
         }
         else {
           if (gravity(0) != -1000000) {
@@ -127,8 +127,14 @@ void loop() {
         }
         helper_bool = !helper_bool;
       }
-    
-
+      
+      ;
+      if (Serial.available() > 0) {
+        switchAntenna(Serial.readString().toInt());
+        
+      }
+      
+      
       
       // transmit
       
