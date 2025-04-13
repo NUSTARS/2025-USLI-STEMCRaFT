@@ -77,9 +77,9 @@ Eigen::Vector3f ant3 {-0.2672, 0.8345, 0.4818};
 #define MAX_FLIGHT_TIME 150 // in s
 #define MAX_TRANSMIT_TIME 300 // in s (PUT TO 300)
 #define MAX_CALIB_TIME  20 // in s 
-#define TIME_UNTIL_DETECT_LANDING 5 // in s
+#define TIME_UNTIL_DETECT_LANDING 75 // in s
 
-#define LAND_DETECT_WAIT_TIME 1 // in s
+#define LAND_DETECT_WAIT_TIME 3 // in s
 #define LAND_DETECT_THRESH (0.6 * 9.8)
 
 // IMU
