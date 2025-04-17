@@ -44,10 +44,11 @@ unsigned long receiveTime(void) {
 
           Serial.println(millisTime);
 
+          LoRaSerialPort.println("AT+SEND="+ lora_RX_address + ",6,GOT IT");
+          debugHelper("got it", 1000);
           return millisTime;
         }
       }
-      LoRaSerialPort.println("AT+SEND="+ lora_RX_address + ",6,GOT IT");
     }
   }
 
