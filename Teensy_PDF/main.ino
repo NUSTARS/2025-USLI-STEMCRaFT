@@ -128,7 +128,7 @@ void loop() {
         helper_bool = !helper_bool;
       }
       
-      ;
+      
       if (Serial.available() > 0) {
         switchAntenna(Serial.readString().toInt());
         
