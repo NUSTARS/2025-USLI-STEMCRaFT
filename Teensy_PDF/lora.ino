@@ -45,7 +45,7 @@ unsigned long receiveTime(void) {
           Serial.println(millisTime);
 
           LoRaSerialPort.println("AT+SEND="+ lora_RX_address + ",6,GOT IT");
-          debugHelper("got it", 1000);
+          debugHelper("got time", 1000);
           return millisTime;
         }
       }
@@ -61,6 +61,7 @@ bool receiveStopSignal(void) {
     Serial.println("serial is avaiable");
     String incoming_string = LoRaSerialPort.readString();
     Serial.println(incoming_string);
+    LoRaSerialPort.println("AT+SEND="+ lora_RX_address + ",19,ENDING TRANSMISSION");
     return incoming_string.indexOf(LORA_STOP_CHAR) >= 0;
   }
   return false;
