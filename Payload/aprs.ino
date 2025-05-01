@@ -33,7 +33,7 @@ int8_t  CallNumber=11;//SSID http://www.aprs.org/aprs11/SSIDs.txt
 char    Symbol='>'; // 'O' for balloon, '>' for car, for more info : http://www.aprs.org/symbols/symbols-new.txt
 bool    alternateSymbolTable = false ; //false = '/' , true = '\'
 
-char Frequency[9]="144.3900"; //default frequency. 144.3900 for US, 144.8000 for Europe
+char Frequency[9]="145.6000"; //default frequency. 144.3900 for US, 144.8000 for Europe
 
 char    comment[50] = "LightAPRS 2.0"; // Max 50 char but shorter is better.
 // bool    FirstTime = true;
